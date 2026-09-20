@@ -387,6 +387,8 @@
             '<button id="topNotifBtn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:14px;padding:4px 8px;border-radius:16px;cursor:pointer;">🔔</button>' +
           '</div>';
 
+        var _nb = document.getElementById('topNotifBtn'); if (_nb) _nb.dataset.priceBound = '1';
+
         // 给用户名添加点击事件，弹出用户信息
         var nameEl = document.getElementById('opInfoNameCompact');
         if (nameEl) {
