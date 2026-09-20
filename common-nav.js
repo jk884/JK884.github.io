@@ -342,7 +342,8 @@
       '#cnUserPopover .cn-pop-btn-primary{background:#12314b;color:#fff;}' +
       '#cnUserPopover .cn-pop-btn-primary:hover{background:#1a3f5f;}' +
       '#cnUserPopover .cn-pop-btn-danger{background:#fef0ef;color:#e74c3c;border:1px solid #fdd5d2;}' +
-      '#cnUserPopover .cn-pop-btn-danger:hover{background:#fde2e0;}';
+      '#cnUserPopover .cn-pop-btn-danger:hover{background:#fde2e0;}' +
+      '#priceNotificationDialog,#specialPriceDialog{position:fixed!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;max-width:92vw;}';
     var style = document.createElement('style');
     style.id = 'cnNavStyles';
     style.textContent = css;
