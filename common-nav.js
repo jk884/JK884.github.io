@@ -343,7 +343,10 @@
       '#cnUserPopover .cn-pop-btn-primary:hover{background:#1a3f5f;}' +
       '#cnUserPopover .cn-pop-btn-danger{background:#fef0ef;color:#e74c3c;border:1px solid #fdd5d2;}' +
       '#cnUserPopover .cn-pop-btn-danger:hover{background:#fde2e0;}' +
-      '#priceNotificationDialog,#specialPriceDialog{position:fixed!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;max-width:92vw;}';
+      '#priceNotificationDialog,#specialPriceDialog{position:fixed!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;margin:0!important;max-width:92vw;}' +
+      /* 铃铛有未读时抖动动画 */
+      '#topNotifBtn.has-unread{animation:bellShake 1.2s ease-in-out infinite;position:relative;}#topNotifBtn.has-unread::after{content:\'\';position:absolute;top:-2px;right:-2px;width:10px;height:10px;background:#e74c3c;border-radius:50%;border:2px solid #fff;}' +
+      '@keyframes bellShake{0%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-14deg)}50%{transform:rotate(0)}}';
     var style = document.createElement('style');
     style.id = 'cnNavStyles';
     style.textContent = css;
