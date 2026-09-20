@@ -1,0 +1,1158 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>打样工作台</title><style>
+.sample-ui{box-sizing:border-box;color:#19374e;font:14px/1.6 system-ui,sans-serif}.sample-ui *{box-sizing:border-box}.sample-ui button,.sample-ui .sample-link{border:1px solid #cddbe7;border-radius:8px;background:#fff;color:#19374e;padding:8px 13px;cursor:pointer;font:inherit;text-decoration:none}.sample-ui button:disabled{opacity:.5;cursor:default}.sample-ui .primary{background:#194b70;border-color:#194b70;color:#fff}.sample-ui .sample-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}.sample-ui input,.sample-ui textarea,.sample-ui select{display:block;width:100%;padding:10px;border:1px solid #ccd9e4;border-radius:8px;font:inherit;color:#19374e;background:white}.sample-ui label{display:block;font-weight:600}.sample-ui label>input,.sample-ui label>textarea{margin-top:5px}.sample-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sample-ui .sample-wide{grid-column:1/-1}.sample-ui .sample-hint{font-size:12px;color:#667d8e;font-weight:400}.sample-dialog{position:fixed;inset:0;margin:auto;width:min(740px,94vw);max-height:90vh;overflow:auto;border:1px solid #d8e4ef;border-radius:14px;padding:22px}.sample-dialog::backdrop{background:#0c243e55}.sample-dialog h2{font-size:21px;margin:0 0 12px}.sample-dialog h3{font-size:16px;margin:20px 0 8px}.sample-ui .sample-status{display:inline-block;border-radius:20px;padding:3px 10px;background:#eaf0f5;color:#456276;font-size:12px;font-weight:600}.sample-ui .sample-status[data-status="打样中"]{background:#fff0d3;color:#965b00}.sample-ui .sample-status[data-status="已完成"]{background:#ddf4e8;color:#176343}.sample-ui .sample-status[data-status="已收样"]{background:#deedff;color:#285998}.sample-ui .sample-requirements{white-space:pre-wrap;overflow-wrap:anywhere;padding:18px;border:1px solid #dae5ed;border-radius:10px;background:#f5f9fc;font-size:16px;line-height:1.9}.sample-ui .sample-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f6f8fb;border-radius:10px;padding:14px}.sample-ui .sample-facts p{margin:0;overflow-wrap:anywhere}.sample-ui .sample-photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.sample-ui .sample-photos img{width:100%;height:160px;object-fit:contain;background:#f3f6f9;border-radius:8px;cursor:zoom-in}.sample-ui .sample-error{color:#a63c32;white-space:pre-wrap}.sample-ui .sample-row{padding:12px 0;border-bottom:1px solid #e5edf3}.sample-ui .sample-row h3{font-size:14px;margin:0 0 6px}.sample-ui .sample-row p{font-size:12px;margin:5px 0;overflow-wrap:anywhere}.sample-ui .sample-row button{padding:5px 10px;font-size:12px}.sample-workbench{max-width:1180px;margin:24px auto;padding:0 18px}.sample-workbench h1{font-size:26px;margin:0}.sample-workbench .sample-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}.sample-workbench .sample-job{border:1px solid #d8e4ee;border-radius:12px;padding:18px;background:#fff}.sample-workbench .sample-job h2{margin:10px 0;font-size:18px;overflow-wrap:anywhere}.sample-workbench .sample-job p{margin:7px 0;overflow-wrap:anywhere}.sample-workbench .sample-filters{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}.sample-workbench .sample-filters button.active{background:#194b70;color:#fff}.sample-workbench .sample-empty{padding:32px;text-align:center;color:#667d8e}.sample-ui .sample-progress{border-top:1px solid #dde7ef;margin-top:20px;padding-top:4px}.sample-image-dialog{width:min(1000px,96vw);max-height:94vh;border:0;border-radius:10px;padding:12px}.sample-image-dialog img{max-width:100%;max-height:80vh;display:block;margin:auto}.sample-card #sampleCardBody{padding:12px!important;max-height:none!important}.sample-card-list{max-height:360px;overflow:auto}.sample-card .side-card-head{background:#194b70;color:white}.sample-card .sample-card-count{font-size:12px;opacity:.85}.sample-card .sample-card-actions{display:flex;justify-content:space-between;align-items:center;gap:8px}.sample-card a{font-size:12px;color:#295e85}.sample-card .side-card-title{color:inherit!important}@media(max-width:600px){.sample-grid,.sample-ui .sample-facts{grid-template-columns:1fr}.sample-dialog{padding:16px}.sample-workbench{padding:0 12px;margin:16px auto}.sample-workbench .sample-list{grid-template-columns:1fr}.sample-workbench h1{font-size:22px}}
+
+.sample-card-list{display:flex;flex-direction:column;gap:10px;padding:4px 0}.sample-ui .sample-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:12px;border:1px solid #dbe6ee;border-left:3px solid #416e90;border-radius:10px;background:#f8fbfd}.sample-ui .sample-row h3{margin:0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.sample-ui .sample-row .sample-status{align-self:start;white-space:nowrap}.sample-ui .sample-row p{margin:0;align-self:center}.sample-ui .sample-row button{justify-self:end;background:white}
+
+</style></head><body style="background:#f4f7fa;margin:0">
+<script>
+// ========================================
+// Supabase 工具模块（Auth + REST）
+// 封装所有数据库和认证操作，前端只调这里的函数
+// ========================================
+var SupabaseDB = (function () {
+  var BASE_URL = 'https://xnyjrddfntcbrpxhnuzz.supabase.co/rest/v1';
+  var AUTH_URL = 'https://xnyjrddfntcbrpxhnuzz.supabase.co/auth/v1';
+  var ANON_KEY = 'sb_publishable_juV2Bs_XYPW7puOJBZ8a0g_noGJ63nB';
+  var STORAGE_KEY = 'supabase_auth_session';
+  var sessionGeneration = 0;
+
+  // ========== 会话管理 ==========
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} // 升级后重新登录
+  function getSession(allowExpired) {
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var session = JSON.parse(raw);
+      // 检查 access token 是否过期
+      if (!session.access_token || !Number.isFinite(session.expires_at) || (!allowExpired && Date.now() / 1000 >= session.expires_at)) {
+        return null; // 需要刷新
+      }
+      return session;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveSession(session) {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    } catch (e) {}
+  }
+
+  function clearSession() {
+    sessionGeneration++;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_KEY);
+      ['jk_pg_key', 'jk_token', 'jk_username', 'jk_user_id', 'jk_user_name', 'jk_user_role', 'jk_permissions', 'jk_user_info', 'jk_password', 'jk_config', 'jk_last_activity', 'jk_profile_cache'].forEach(function (key) { sessionStorage.removeItem(key); });
+    } catch (e) {}
+  }
+
+  function getAccessToken() {
+    var session = getSession();
+    return session ? session.access_token : null;
+  }
+
+  // ========== 请求头 ==========
+  function headers() {
+    var h = {
+      'apikey': ANON_KEY,
+      'Content-Type': 'application/json'
+    };
+    var token = getAccessToken();
+    if (token) {
+      h['Authorization'] = 'Bearer ' + token;
+    } else {
+      h['Authorization'] = 'Bearer ' + ANON_KEY;
+    }
+    return h;
+  }
+
+  function authHeaders() {
+    return {
+      'apikey': ANON_KEY,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  // ========== Auth API ==========
+
+  // 必须收到本次密码验证的有效会话，不能回退到浏览器里的旧账号。
+  function requestPasswordSession(username, password) {
+    if (typeof username !== 'string' || !username.trim() || typeof password !== 'string' || !password.trim()) {
+      return Promise.reject(new Error('请输入用户名和密码'));
+    }
+    var email = username.trim().toLowerCase() + '@jklaser.com';
+    return fetch(AUTH_URL + '/token?grant_type=password', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email: email, password: password })
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().then(function (e) {
+          var msg = e.msg || e.error_description || e.error || '登录失败';
+          // 如果是邮箱未确认，尝试自动确认（我们的迁移脚本已经确认了）
+          throw new Error(msg);
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    }).then(function (session) {
+      if (!session || typeof session.access_token !== 'string' || !session.access_token ||
+          !session.user || !session.user.id || typeof session.user.email !== 'string' ||
+          session.user.email.toLowerCase() !== email || !Number.isFinite(session.expires_in) || session.expires_in <= 0) {
+        throw new Error('登录验证未返回有效会话，请重新登录');
+      }
+      session.expires_at = Math.floor(Date.now() / 1000) + session.expires_in;
+      return session;
+    });
+  }
+
+  function authLogin(username, password) {
+    clearSession();
+    var generation = sessionGeneration;
+    return requestPasswordSession(username, password).then(function (session) {
+      if (generation !== sessionGeneration) throw new Error('本次登录已取消');
+      saveSession(session);
+      if (!getAccessToken()) throw new Error('无法保存登录会话，请检查浏览器设置');
+      return session;
+    });
+  }
+
+  // 刷新会话
+  function authRefreshSession() {
+    var session = getSession(true);
+    var generation = sessionGeneration;
+    if (!session || !session.refresh_token) {
+      return Promise.reject(new Error('没有刷新令牌'));
+    }
+    return fetch(AUTH_URL + '/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    }).then(function (res) {
+      if (!res.ok) {
+        clearSession();
+        return res.json().then(function (e) {
+          throw new Error(e.msg || '刷新会话失败');
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    }).then(function (newSession) {
+      if (generation !== sessionGeneration) throw new Error('登录已失效，请重新登录');
+      if (newSession.access_token) {
+        newSession.expires_at = Math.floor(Date.now() / 1000) + (newSession.expires_in || 3600);
+        saveSession(newSession);
+      }
+      return newSession;
+    });
+  }
+
+  // 登出
+  function authLogout() {
+    var token = getAccessToken();
+    clearSession();
+    if (token) {
+      return fetch(AUTH_URL + '/logout', {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      }).catch(function () {}); // 忽略登出错误
+    }
+    return Promise.resolve();
+  }
+
+  // 获取当前用户信息（从 Auth）
+  function authGetUser() {
+    var token = getAccessToken();
+    if (!token) return Promise.reject(new Error('未登录'));
+    return fetch(AUTH_URL + '/user', {
+      method: 'GET',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + token
+      }
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().then(function (e) {
+          throw new Error(e.msg || '获取用户信息失败');
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 获取当前用户的 profile（包含角色、权限等）
+  function getCurrentProfile() {
+    var currentSession = getSession();
+    var token = getAccessToken();
+    if (!token) return Promise.reject(new Error('未登录'));
+    // 先用 Auth 接口拿到当前用户 id，再按 id 精确查询 profile，避免取到表内第一条记录
+    return authGetUser().then(function (authUser) {
+      var userId = authUser && authUser.id;
+      if (!userId) throw new Error('未获取到用户ID');
+      return select('profiles', 'select=*&id=eq.' + userId).then(function (profiles) {
+        if (profiles && profiles.length > 0) return profiles[0];
+        throw new Error('profile 不存在');
+      });
+    }).catch(function () {
+      // 查表失败（RLS 限制）时，回退到 RPC 函数
+      return rpc('get_current_profile', {});
+    }).then(function (profile) {
+      var current = getSession();
+      if (!currentSession || !currentSession.user || !current || current.access_token !== currentSession.access_token ||
+          !profile || profile.id !== currentSession.user.id) throw new Error('登录身份已变化，请重新登录');
+      // 仅缓存显示资料，不缓存页面密钥，也不以此决定解密权限。
+      var display = {};
+      ['id','username','full_name','role','permissions','phone','shop_name','shop_company','shop_address',
+       'operator_id','parent_operator_id','parent_operator_name','last_login_at','last_login_ip'].forEach(function (field) {
+        display[field] = profile[field];
+      });
+      try {
+        sessionStorage.setItem('jk_profile_cache', JSON.stringify({
+          userId: current.user.id, expiresAt: current.expires_at, profile: display
+        }));
+      } catch (e) {}
+      return profile;
+    });
+  }
+
+  // 页面展示可复用当前会话的资料；取密钥 RPC 仍逐次在服务端核验最新权限。
+  function getPageProfile() {
+    var session = getSession();
+    if (!session || !session.user) return Promise.reject(new Error('未登录'));
+    try {
+      var cached = JSON.parse(sessionStorage.getItem('jk_profile_cache') || 'null');
+      if (cached && cached.userId === session.user.id && cached.expiresAt === session.expires_at &&
+          cached.profile && cached.profile.id === session.user.id) return Promise.resolve(cached.profile);
+    } catch (e) {}
+    return getCurrentProfile();
+  }
+
+  // 检查是否已登录
+  function isLoggedIn() {
+    return !!getAccessToken();
+  }
+
+  // ========== REST API ==========
+
+  // 调用 RPC 函数
+  function rpc(name, params) {
+    return fetch(BASE_URL + '/rpc/' + name, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(params || {})
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '请求失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 读取表数据
+  function select(table, query) {
+    var url = BASE_URL + '/' + table;
+    if (query) url += '?' + query;
+    return fetch(url, {
+      method: 'GET',
+      headers: headers()
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '请求失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 插入数据
+  function insert(table, data) {
+    return fetch(BASE_URL + '/' + table, {
+      method: 'POST',
+      headers: Object.assign(headers(), {Prefer: 'return=representation'}),
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '插入失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 更新数据
+  function update(table, id, data) {
+    return fetch(BASE_URL + '/' + table + '?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: headers(),
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '更新失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 删除数据
+  function remove(table, id) {
+    return fetch(BASE_URL + '/' + table + '?id=eq.' + encodeURIComponent(id), {
+      method: 'DELETE',
+      headers: headers()
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '删除失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // ========== 业务函数（兼容旧接口） ==========
+
+  return {
+    connection: {url: BASE_URL.replace('/rest/v1', ''), publicKey: ANON_KEY},
+    getPageKey: function (page, version) {
+      if (!['contract', 'warehouse', 'admin'].includes(page) || !/^[a-f0-9-]{36}$/.test(version)) {
+        return Promise.reject(new Error('页面参数无效'));
+      }
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return rpc('get_page_key', { p_page: page, p_version: version }).then(function (key) {
+        if (typeof key !== 'string' || !/^[A-Za-z0-9+/]{43}=$/.test(key)) throw new Error('页面密钥不可用');
+        return key;
+      });
+    },
+    // 服务端必须核验当前用户的报价权限，禁止公开读取密钥。
+    getQuoteKey: function () {
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return rpc('get_quote_key', {}).then(function (key) {
+        if (typeof key !== 'string' || !key.trim()) throw new Error('报价密钥尚未在服务端配置');
+        return key;
+      }).catch(function () { throw new Error('无法获取报价密钥：请确认报价权限及服务端密钥配置'); });
+    },
+    // Auth 相关
+    authLogin: authLogin,
+    authRefreshSession: authRefreshSession,
+    authLogout: authLogout,
+    authGetUser: authGetUser,
+    getCurrentProfile: getCurrentProfile,
+    getPageProfile: getPageProfile,
+    isLoggedIn: isLoggedIn,
+    getSession: getSession,
+    clearSession: clearSession,
+
+    // 登录失败次数限制相关
+    checkAccountLock: function (username) {
+      return rpc('check_account_lock', { p_username: username });
+    },
+    recordLoginFailure: function (username, ip) {
+      return rpc('record_login_failure', { p_username: username, p_ip_address: ip || null });
+    },
+    recordLoginSuccess: function (username, ip) {
+      return rpc('record_login_success', { p_username: username, p_ip_address: ip || null });
+    },
+    unlockAccount: function (username) {
+      return rpc('unlock_account', { p_username: username });
+    },
+
+    // 旧的登录接口（保留兼容，内部使用 Auth）
+    login: function (username, password) {
+      return authLogin(username, password).then(function (session) {
+        return getCurrentProfile().then(function (profile) {
+          // 转换为旧格式（返回单个对象，不是数组）
+          return {
+            id: profile.id,
+            username: profile.username,
+            role: profile.role,
+            permissions: profile.permissions,
+            full_name: profile.full_name,
+            name: profile.full_name || profile.username,
+            phone: profile.phone,
+            shop_name: profile.shop_name,
+            shop_company: profile.shop_company,
+            shop_address: profile.shop_address,
+            operator_id: profile.operator_id,
+            parent_operator_id: profile.parent_operator_id,
+            parent_operator_name: profile.parent_operator_name,
+            last_login_time: profile.last_login_at,
+            last_login_ip: profile.last_login_ip
+          };
+        });
+      });
+    },
+
+    // 修改密码（使用 Auth）
+    updatePassword: function (username, oldPassword, newPassword) {
+      // 先验证旧密码
+      var current = getSession();
+      var generation = sessionGeneration;
+      if (!current || !current.user) return Promise.reject(new Error('未登录'));
+      return requestPasswordSession(username, oldPassword).then(function (verified) {
+        if (generation !== sessionGeneration || verified.user.id !== current.user.id) throw new Error('登录信息已变化');
+        var token = verified.access_token;
+        return fetch(AUTH_URL + '/user', {
+          method: 'PUT',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password: newPassword })
+        }).then(function (res) {
+          if (!res.ok) return res.json().then(function (e) { throw new Error(e.msg || '修改密码失败'); });
+          return res.status === 204 ? null : res.json();
+        }).then(function (result) {
+          if (generation !== sessionGeneration) throw new Error('登录已失效，请重新登录');
+          saveSession(verified);
+          return result;
+        });
+      });
+    },
+
+    // 获取所有用户（从 profiles 表）
+    getUsers: function () {
+      return select('profiles', 'select=id,username,full_name,role,permissions,sample_email,operator_id,parent_operator_id,parent_operator_name,phone,created_at,updated_at&order=created_at.asc');
+    },
+
+    // 创建用户（管理员操作，需要先创建 Auth 用户，再创建 profile；鉴权由当前登录会话 + 后端 RLS/RPC 保证）
+    createUser: function (username, password, role, permissions, parentOperatorId, parentOperatorName, sampleEmail) {
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return fetch(AUTH_URL.replace('/auth/v1','/functions/v1/admin-users'), {
+        method:'POST', headers:headers(), body:JSON.stringify({username:username,password:password,role:role,permissions:permissions,parentOperatorId:parentOperatorId,parentOperatorName:parentOperatorName,sampleEmail:sampleEmail||''})
+      }).catch(function(){throw new Error('无法连接创建账号接口，请确认已部署 admin-users 并检查网络连接');}).then(async function(res){var data;try{data=await res.json();}catch(e){throw new Error('创建账号接口返回异常，请检查 admin-users 部署');}if(!res.ok){if(res.status===404)throw new Error('创建账号接口尚未部署，请先部署 admin-users');throw new Error(data.error||data.message||'创建账号失败');}return data;});
+    },
+
+    // 更新用户
+    updateUser: function (userId, username, role, permissions, parentOperatorId, parentOperatorName, sampleEmail) {
+      return update('profiles', userId, {
+        username: username,
+        role: role,
+        permissions: permissions,
+        sample_email: sampleEmail||'',
+        parent_operator_id: parentOperatorId || null,
+        parent_operator_name: parentOperatorName || null
+      });
+    },
+
+    // 删除用户
+    deleteUser: function (userId) {
+      // 删除 auth.users 会级联删除 profiles（因为有外键 ON DELETE CASCADE）
+      // 但前端无法直接删除 auth.users，需要用 RPC 函数（后端鉴权）
+      return rpc('delete_auth_user', { p_user_id: userId });
+    },
+
+    // 重置用户密码
+    resetUserPassword: function (userId, newPassword) {
+      return rpc('reset_user_password', { p_user_id: userId, p_new_password: newPassword });
+    },
+
+    // 库存相关
+    getInventory: function () {
+      return select('inventory', 'select=*&order=item_key.asc');
+    },
+
+    updateInventoryItem: function (itemKey, quantity) {
+      var items={};items[itemKey]=quantity;return rpc('set_inventory_batch', {p_items:items});
+    },
+
+    batchUpdateInventory: function (items) {
+      return rpc('set_inventory_batch', { p_items: items });
+    },
+
+    // 库存匹配相关
+    getAllMappings: function () {
+      return select('user_workspace', 'select=data&kind=eq.mapping').then(function(rows) { return rows[0] ? rows[0].data : []; });
+    },
+
+    saveMappings: function (mappings) {
+      return rpc('save_workspace', { p_kind: 'mapping', p_data: mappings });
+    },
+
+    deleteMapping: function (quoteKey) {
+      return select('user_workspace', 'select=data&kind=eq.mapping').then(function(rows) { return rpc('save_workspace', { p_kind: 'mapping', p_data: (rows[0] ? rows[0].data : []).filter(function(m) { return m.quote_key !== quoteKey; }) }); });
+    },
+
+    // 客户管理相关
+    getCustomers: function () {
+      return select('customers', 'select=*&user_id=eq.' + encodeURIComponent(getSession().user.id) + '&order=created_at.desc&limit=500');
+    },
+
+    saveCustomer: function (customer) {
+      var session = getSession();
+      var userId = session ? session.user.id : null;
+      var data = {
+        user_id: userId,
+        name: customer.name,
+        head: customer.head || '',
+        phone: customer.phone || '',
+        addr: customer.addr || '',
+        credit: customer.credit || '',
+        mail: customer.mail || '',
+        tel: customer.tel || '',
+        price_term: customer.priceTerm || ''
+      };
+      return insert('customers', data);
+    },
+
+    updateCustomer: function (id, customer) {
+      var data = {
+        name: customer.name,
+        head: customer.head || '',
+        phone: customer.phone || '',
+        addr: customer.addr || '',
+        credit: customer.credit || '',
+        mail: customer.mail || '',
+        tel: customer.tel || '',
+        price_term: customer.priceTerm || '',
+        updated_at: new Date().toISOString()
+      };
+      return update('customers', id, data);
+    },
+
+    deleteCustomer: function (id) {
+      return remove('customers', id);
+    },
+
+    // 报价历史相关
+    getQuotes: function () {
+      return select('quotes', 'select=*&user_id=eq.' + encodeURIComponent(getSession().user.id) + '&order=created_at.desc&limit=200');
+    },
+
+    saveQuote: function (quote) {
+      var session = getSession();
+      var userId = session ? session.user.id : null;
+      var data = {
+        user_id: userId,
+        customer_name: quote.customerName || '',
+        quote_data: quote.quoteData || {},
+        total_price: quote.totalPrice || 0
+      };
+      return insert('quotes', data);
+    },
+
+    deleteQuote: function (id) {
+      return remove('quotes', id);
+    },
+
+    updateQuote: function (id, data) {
+      return update('quotes', id, data);
+    },
+
+    // 原始 API（供高级使用）
+    _rpc: rpc,
+    _select: select,
+    _insert: insert,
+    _update: update,
+    _delete: remove
+  };
+})();
+
+</script><script>window.navConfig={currentPage:'samples',requireLogin:true};</script><script>
+/**
+ * 锦刻激光 - 统一导航栏与登录鉴权
+ * 用法：在页面中设置 window.navConfig = { currentPage: 'quote|contract|warehouse|login', requireLogin: true|false }
+ * 然后引入 script src="common-nav.js"
+ */
+(function () {
+  'use strict';
+
+  var NAV_ITEMS = [
+    { key: 'quote',     label: '实时报价', url: 'quote.html' },
+    { key: 'contract',  label: '合同管理', url: 'contract.html' },
+    { key: 'warehouse', label: '仓储管理', url: 'warehouse.html' },
+    { key: 'admin',     label: '账号管理', url: 'admin.html' },
+    { key: 'samples', label: '打样工作台', url: 'samples.html' }
+  ];
+
+  var LOGIN_PAGE = 'login.html';
+  var IDLE_TIMEOUT = 20 * 60 * 1000; // 20分钟无操作超时
+
+  // ---------- XSS 防护：HTML 转义函数 ----------
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\//g, '&#x2F;')
+      .replace(/`/g, '&#x60;')
+      .replace(/=/g, '&#x3D;');
+  }
+
+  // 暴露到全局，供其他脚本使用
+  window.escapeHtml = escapeHtml;
+
+  // ---------- 登录状态管理 ----------
+  function isLoggedIn() {
+    try {
+      var key = window.SupabaseDB && SupabaseDB.isLoggedIn();
+      var lastActivity = parseInt(sessionStorage.getItem('jk_last_activity') || '0', 10);
+      if (!key) return false;
+      if (!lastActivity || lastActivity > Date.now() || Date.now() - lastActivity >= IDLE_TIMEOUT) {
+        clearLogin();
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearLogin() {
+    if (window.SupabaseDB) SupabaseDB.clearSession();
+    try {
+      ['jk_pg_key', 'jk_token', 'jk_username', 'jk_user_name', 'jk_user_role',
+       'jk_config', 'jk_user_info', 'jk_last_activity', 'jk_password'].forEach(function (k) {
+        sessionStorage.removeItem(k);
+      });
+    } catch (e) {}
+  }
+
+  function getCurrentUser() {
+    try {
+      return {
+        username: sessionStorage.getItem('jk_username') || '',
+        name: sessionStorage.getItem('jk_user_name') || sessionStorage.getItem('jk_username') || '用户',
+        role: sessionStorage.getItem('jk_user_role') || '',
+        permissions: JSON.parse(sessionStorage.getItem('jk_permissions') || '[]')
+      };
+    } catch (e) {
+      return { username: '', name: '用户', role: '', permissions: [] };
+    }
+  }
+
+  function touchActivity() {
+    if (window.navConfig && window.navConfig.requireLogin === false && !isLoggedIn()) return;
+    if (!isLoggedIn()) { clearLogin(); window.location.href = LOGIN_PAGE; return; }
+    try {
+      sessionStorage.setItem('jk_last_activity', String(Date.now()));
+    } catch (e) {}
+  }
+
+  function logout() {
+    // 使用 Supabase Auth 登出
+    if (window.SupabaseDB && typeof SupabaseDB.authLogout === 'function') {
+      SupabaseDB.authLogout().catch(function () {});
+    }
+    clearLogin();
+    window.location.href = LOGIN_PAGE;
+  }
+
+  // 修改密码 - 模态框版本
+  function changePassword() {
+    try {
+      var user = getCurrentUser();
+      if (!user || !user.username) {
+        showPwdModalError('未登录，无法修改密码');
+        return;
+      }
+      openPwdModal();
+    } catch(e) {
+      alert('修改密码出错：' + e.message);
+    }
+  }
+
+  // 注入修改密码模态框样式
+  function injectPwdModalStyle() {
+    if (document.getElementById('cn-pwd-modal-style')) return;
+    var style = document.createElement('style');
+    style.id = 'cn-pwd-modal-style';
+    style.textContent = [
+      '.cn-pwd-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center;animation:cnFadeIn .2s ease}',
+      '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}',
+      '@keyframes cnSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}',
+      '.cn-pwd-modal{background:#fff;border-radius:16px;width:380px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:cnSlideUp .25s ease}',
+      '.cn-pwd-header{padding:20px 24px 16px;border-bottom:1px solid #f0f0f0}',
+      '.cn-pwd-title{font-size:18px;font-weight:700;color:#1a1a2e;margin:0}',
+      '.cn-pwd-body{padding:20px 24px}',
+      '.cn-pwd-field{margin-bottom:16px}',
+      '.cn-pwd-field:last-child{margin-bottom:0}',
+      '.cn-pwd-label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:6px}',
+      '.cn-pwd-input{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;box-sizing:border-box;transition:border-color .2s,box-shadow .2s;outline:none}',
+      '.cn-pwd-input:focus{border-color:#4f7cff;box-shadow:0 0 0 3px rgba(79,124,255,.15)}',
+      '.cn-pwd-error{color:#e74c3c;font-size:12px;margin-top:6px;min-height:16px;display:none}',
+      '.cn-pwd-error.show{display:block}',
+      '.cn-pwd-footer{padding:16px 24px;background:#fafafa;display:flex;gap:12px;justify-content:flex-end}',
+      '.cn-pwd-btn{padding:9px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s}',
+      '.cn-pwd-btn-cancel{background:#f0f0f0;color:#666}',
+      '.cn-pwd-btn-cancel:hover{background:#e4e4e4}',
+      '.cn-pwd-btn-confirm{background:linear-gradient(135deg,#4f7cff,#3b5fe0);color:#fff}',
+      '.cn-pwd-btn-confirm:hover{background:linear-gradient(135deg,#3b5fe0,#2a4bc8);transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,124,255,.3)}',
+      '.cn-pwd-btn-confirm:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}',
+      '.cn-pwd-success{color:#27ae60;font-size:14px;text-align:center;padding:10px 0}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  // 打开修改密码模态框
+  function openPwdModal() {
+    injectPwdModalStyle();
+    closePwdModal();
+
+    var mask = document.createElement('div');
+    mask.className = 'cn-pwd-mask';
+    mask.id = 'cn-pwd-mask';
+    mask.innerHTML = [
+      '<div class="cn-pwd-modal">',
+      '  <div class="cn-pwd-header"><h3 class="cn-pwd-title">修改密码</h3></div>',
+      '  <div class="cn-pwd-body">',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">当前密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdOld" placeholder="请输入当前密码" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdOldErr"></div>',
+      '    </div>',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">新密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdNew" placeholder="至少6位" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdNewErr"></div>',
+      '    </div>',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">确认新密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdConfirm" placeholder="再次输入新密码" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdConfirmErr"></div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="cn-pwd-footer">',
+      '    <button class="cn-pwd-btn cn-pwd-btn-cancel" id="cnPwdCancel">取消</button>',
+      '    <button class="cn-pwd-btn cn-pwd-btn-confirm" id="cnPwdSubmit">确认修改</button>',
+      '  </div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(mask);
+
+    // 点击遮罩关闭
+    mask.addEventListener('click', function(e) {
+      if (e.target === mask) closePwdModal();
+    });
+    // ESC关闭
+    var escHandler = function(e) {
+      if (e.key === 'Escape') { closePwdModal(); document.removeEventListener('keydown', escHandler); }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    var cnPwdCancel = document.getElementById('cnPwdCancel');
+    if (cnPwdCancel) cnPwdCancel.addEventListener('click', closePwdModal);
+    var cnPwdSubmit = document.getElementById('cnPwdSubmit');
+    if (cnPwdSubmit) cnPwdSubmit.addEventListener('click', submitPwdChange);
+
+    // 回车提交
+    ['cnPwdOld', 'cnPwdNew', 'cnPwdConfirm'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitPwdChange();
+      });
+    });
+
+    setTimeout(function() { var oldPwd = document.getElementById('cnPwdOld'); if (oldPwd) oldPwd.focus(); }, 100);
+  }
+
+  function closePwdModal() {
+    var mask = document.getElementById('cn-pwd-mask');
+    if (mask) mask.remove();
+  }
+
+  function showPwdModalError(fieldId, msg) {
+    var el = document.getElementById(fieldId);
+    if (el) {
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+  }
+  function clearPwdModalErrors() {
+    ['cnPwdOldErr', 'cnPwdNewErr', 'cnPwdConfirmErr'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = ''; el.classList.remove('show'); }
+    });
+  }
+
+  function submitPwdChange() {
+    clearPwdModalErrors();
+    var oldEl = document.getElementById('cnPwdOld'); if (!oldEl) return; var oldPwd = oldEl.value;
+    var newEl = document.getElementById('cnPwdNew'); if (!newEl) return; var newPwd = newEl.value;
+    var confirmEl = document.getElementById('cnPwdConfirm'); if (!confirmEl) return; var confirmPwd = confirmEl.value;
+    var hasError = false;
+
+    if (!oldPwd) { showPwdModalError('cnPwdOldErr', '请输入当前密码'); hasError = true; }
+    if (!newPwd) { showPwdModalError('cnPwdNewErr', '请输入新密码'); hasError = true; }
+    else if (newPwd.length < 6) { showPwdModalError('cnPwdNewErr', '密码长度不能少于6位'); hasError = true; }
+    if (!confirmPwd) { showPwdModalError('cnPwdConfirmErr', '请确认新密码'); hasError = true; }
+    else if (newPwd !== confirmPwd) { showPwdModalError('cnPwdConfirmErr', '两次输入的密码不一致'); hasError = true; }
+    if (oldPwd && newPwd && oldPwd === newPwd) { showPwdModalError('cnPwdNewErr', '新密码不能与旧密码相同'); hasError = true; }
+    if (hasError) return;
+
+    var submitBtn = document.getElementById('cnPwdSubmit');
+    if (!submitBtn) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '提交中...';
+
+    var user = getCurrentUser();
+    SupabaseDB.updatePassword(user.username, oldPwd, newPwd).then(function (success) {
+      if (!success) { showPwdModalError('cnPwdOldErr', '当前密码错误'); throw new Error('wrong password'); }
+      sessionStorage.removeItem('jk_password');
+      var info = null;
+      try { info = JSON.parse(sessionStorage.getItem('jk_user_info') || 'null'); } catch(e) {}
+      if (info) { delete info.password; sessionStorage.setItem('jk_user_info', JSON.stringify(info)); }
+      var body = document.querySelector('.cn-pwd-body');
+      if (body) {
+        body.innerHTML = '<div class="cn-pwd-success">密码修改成功！</div>';
+        var cancelBtn = document.getElementById('cnPwdCancel'); if (cancelBtn) cancelBtn.textContent = '关闭';
+        var submitBtnHide = document.getElementById('cnPwdSubmit'); if (submitBtnHide) submitBtnHide.style.display = 'none';
+      }
+    }).catch(function(e) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '确认修改'; }
+      if (e.message !== 'wrong password') {
+        showPwdModalError('cnPwdNewErr', '修改失败：' + e.message);
+      }
+    });
+  }
+
+  // ---------- 导航栏渲染 ----------
+  function buildNav(currentPage) {
+    var user = getCurrentUser();
+    var roleLabel = user.role === 'admin' ? '管理员' : (user.role === 'operator' ? '运营' : (user.role === 'agent' ? '代理' : ''));
+    var perms = user.permissions || [];
+
+    var itemsHtml = NAV_ITEMS.filter(function (item) {
+      // 管理员显示所有；其他用户按权限过滤
+      if (user.role === 'admin' || perms.indexOf('admin') >= 0 || perms.indexOf('*') >= 0) return true;
+      return item.key==='samples' ? perms.indexOf('sample_manage')>=0 : perms.indexOf(item.key)>=0;
+    }).map(function (item) {
+      var active = item.key === currentPage ? ' class="cn-active"' : '';
+      return '<a href="' + item.url + '"' + active + '>' + item.label + '</a>';
+    }).join('');
+
+    var html =
+      '<div class="cn-topbar" id="commonTopbar">' +
+        '<div class="cn-inner">' +
+          '<div class="cn-brand">' +
+            '<div class="cn-logo">锦</div>' +
+            '<span class="cn-brand-name">锦刻激光</span>' +
+          '</div>' +
+          '<nav class="cn-menu">' + itemsHtml + '</nav>' +
+          '<div class="cn-extra" id="cnExtra"></div>' +
+          '<div class="cn-user">' +
+            (roleLabel ? '<span class="cn-role">' + roleLabel + '</span>' : '') +
+            '<span class="cn-username">' + escapeHtml(user.name) + '</span>' +
+            '<button class="cn-logout" id="cnLogoutBtn">退出</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    return html;
+  }
+
+  function injectStyles() {
+    if (document.getElementById('cnNavStyles')) return;
+    var css =
+      '.cn-topbar{position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#12314b,#1e4976);' +
+      'box-shadow:0 2px 12px rgba(0,0,0,.18);height:52px;display:flex;align-items:center;}' +
+      '.cn-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:32px;width:100%;box-sizing:border-box;}' +
+      '.cn-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}' +
+      '.cn-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f0a832,#e07b1a);' +
+      'display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}' +
+      '.cn-brand-name{color:#fff;font-weight:700;font-size:15px;letter-spacing:1px;}' +
+      '.cn-menu{display:flex;gap:4px;flex:1;}' +
+      '.cn-menu a{color:rgba(255,255,255,.75);text-decoration:none;font-size:14px;padding:8px 16px;' +
+      'border-radius:6px;transition:all .2s;white-space:nowrap;}' +
+      '.cn-menu a:hover{color:#fff;background:rgba(255,255,255,.1);}' +
+      '.cn-menu a.cn-active{color:#fff;background:rgba(240,168,50,.25);font-weight:600;}' +
+      '.cn-user{display:flex;align-items:center;gap:10px;flex-shrink:0;}' +
+      '.cn-extra{display:flex;align-items:center;gap:8px;flex-shrink:0;}' +
+      '.cn-extra button,.cn-extra a{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);' +
+      'padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;text-decoration:none;transition:background .2s;}' +
+      '.cn-extra button:hover,.cn-extra a:hover{background:rgba(255,255,255,.22);}' +
+      '.cn-role{background:rgba(240,168,50,.2);color:#f0a832;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;}' +
+      '.cn-username{color:rgba(255,255,255,.85);font-size:13px;}' +
+      '.cn-logout{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);' +
+      'padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;transition:background .2s;}' +
+      '.cn-logout:hover{background:rgba(255,255,255,.22);}' +
+      '@media(max-width:768px){.cn-inner{padding:0 12px;gap:12px;min-width:0;}.cn-menu{min-width:0;overflow-x:auto;flex-wrap:nowrap;}.cn-menu a{flex-shrink:0;padding:6px 10px;font-size:13px;}.cn-extra{max-width:130px;}.cn-extra #opInfoNameCompact{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
+      '.cn-username{display:none;}.cn-brand-name{display:none;}}' +
+      'body{padding-top:52px !important;}' +
+      /* 用户信息弹窗 - 一体化卡片设计 */
+      '#cnUserPopover{isolation:isolate;opacity:1!important;display:none;position:fixed;top:64px;right:16px;left:auto;margin-left:0;background:#fff;border-radius:16px;box-shadow:0 16px 48px rgba(18,49,75,.25),0 4px 12px rgba(0,0,0,.1);z-index:10002;width:min(320px,calc(100vw - 24px));max-height:calc(100dvh - 90px);overflow:auto;animation:none;border:1px solid rgba(18,49,75,.08);}' +
+      '#cnUserPopover::before{content:"";position:absolute;top:-6px;left:50%;margin-left:-6px;width:12px;height:12px;background:#1a3f5f;transform:rotate(45deg);border-left:1px solid rgba(18,49,75,.08);border-top:1px solid rgba(18,49,75,.08);z-index:0;}' +
+      '@keyframes cnPopFade{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}' +
+      '#cnUserPopover .cn-pop-head{padding:18px 18px 14px;background:linear-gradient(135deg,#0f2a42 0%,#1a3f5f 50%,#1e4976 100%);color:#fff;position:relative;border-radius:16px 16px 0 0;}' +
+      '#cnUserPopover .cn-pop-head::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:3px;background:linear-gradient(90deg,#e8a33d,#f0c060,#e8a33d);}' +
+      '#cnUserPopover .cn-pop-user-row{display:flex;align-items:center;gap:12px;}' +
+      '#cnUserPopover .cn-pop-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#e8a33d,#f0c060);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#12314b;flex-shrink:0;box-shadow:0 2px 8px rgba(232,163,61,.4);}' +
+      '#cnUserPopover .cn-pop-name{font-size:16px;font-weight:700;margin-bottom:3px;}' +
+      '#cnUserPopover .cn-pop-role{display:inline-block;background:rgba(232,163,61,.2);color:#f0c060;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;letter-spacing:.5px;}' +
+      '#cnUserPopover .cn-pop-body{padding:6px 18px 14px;}' +
+      '#cnUserPopover .cn-pop-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:12.5px;border-bottom:1px solid #f3f5f8;}' +
+      '#cnUserPopover .cn-pop-row:last-of-type{border-bottom:none;}' +
+      '#cnUserPopover .cn-pop-label{color:#8a9bb0;display:flex;align-items:center;gap:7px;font-weight:500;}' +
+      '#cnUserPopover .cn-pop-label .cn-pop-icon{font-size:13px;opacity:.8;}' +
+      '#cnUserPopover .cn-pop-value{color:#12314b;font-weight:600;font-size:12px;}' +
+      '#cnUserPopover .cn-pop-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #f3f5f8;}' +
+      '#cnUserPopover .cn-pop-btn{flex:1;padding:9px 0;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:5px;}' +
+      '#cnUserPopover .cn-pop-btn-primary{background:#12314b;color:#fff;}' +
+      '#cnUserPopover .cn-pop-btn-primary:hover{background:#1a3f5f;}' +
+      '#cnUserPopover .cn-pop-btn-danger{background:#fef0ef;color:#e74c3c;border:1px solid #fdd5d2;}' +
+      '#cnUserPopover .cn-pop-btn-danger:hover{background:#fde2e0;}';
+    var style = document.createElement('style');
+    style.id = 'cnNavStyles';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  function renderNav(currentPage) {
+    // 避免重复渲染
+    if (document.getElementById('commonTopbar')) return;
+
+    injectStyles();
+
+    var navEl = document.createElement('div');
+    navEl.innerHTML = buildNav(currentPage);
+    document.body.insertBefore(navEl.firstChild, document.body.firstChild);
+    if(!isLoggedIn()){
+      var guestArea=document.querySelector('.cn-user');
+      if(guestArea)guestArea.innerHTML='<a class="cn-logout" href="login.html">登录</a>';
+    }
+
+    var logoutBtn = document.getElementById('cnLogoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (confirm('确定要退出登录吗？')) {
+          logout();
+        }
+      });
+    }
+
+    // 预填充右侧按钮组：已登录时直接显示用户名/通知/修改密码/退出，避免页面切换时闪烁
+    if (isLoggedIn()) {
+      var user = getCurrentUser();
+      var extra = document.getElementById('cnExtra');
+      var cnUser = document.querySelector('.cn-user');
+      if (cnUser) cnUser.style.display = 'none';
+      if (extra && extra.children.length === 0) {
+        extra.innerHTML =
+          '<span id="opInfoNameCompact" style="font-weight:600;color:#fff;font-size:13px;cursor:pointer;position:relative;" title="点击查看详情">' + escapeHtml(user.name) + '</span>' +
+          '<div id="topNotifWrap" style="position:relative;display:inline-block;">' +
+            '<button id="topNotifBtn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:14px;padding:4px 8px;border-radius:16px;cursor:pointer;">🔔</button>' +
+          '</div>';
+
+        // 给用户名添加点击事件，弹出用户信息
+        var nameEl = document.getElementById('opInfoNameCompact');
+        if (nameEl) {
+          var popover = document.createElement('div');
+          popover.id = 'cnUserPopover';
+          var roleLabel = user.role === 'admin' ? '管理员' : (user.role === 'operator' ? '运营' : (user.role === 'agent' ? '代理' : '用户'));
+          var perms = user.permissions || [];
+          var permLabels = [];
+          if (perms.indexOf('quote') >= 0) permLabels.push('报价');
+          if (perms.indexOf('contract') >= 0) permLabels.push('合同');
+          if (perms.indexOf('warehouse') >= 0) permLabels.push('仓储');
+          if (perms.indexOf('admin') >= 0) permLabels.push('管理');
+          if (perms.indexOf('sample_manage')>=0) permLabels.push('打样处理');
+          var loginTime = '未记录', loginIP = '未记录', lastTime = '首次登录', lastIP = '未记录';
+          try {
+            var ui = JSON.parse(sessionStorage.getItem('jk_user_info') || '{}');
+            loginTime = ui.currentLoginTime || '--';
+            loginIP = ui.currentLoginIP || '--';
+            lastTime = ui.lastLoginTime || '--';
+            lastIP = ui.lastLoginIP || '--';
+          } catch(e) {}
+          var avatarChar = user.name ? user.name.charAt(0) : 'U';
+          popover.innerHTML =
+            '<div class="cn-pop-head">' +
+              '<div class="cn-pop-user-row">' +
+                '<div class="cn-pop-avatar">' + escapeHtml(avatarChar) + '</div>' +
+                '<div>' +
+                  '<div class="cn-pop-name">' + escapeHtml(user.name) + '</div>' +
+                  '<span class="cn-pop-role">👤 ' + roleLabel + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="cn-pop-body">' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">📋</span>权限</span><span class="cn-pop-value">' + (permLabels.length ? permLabels.join('、') : '--') + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">🕐</span>本次登录</span><span class="cn-pop-value">' + escapeHtml(loginTime) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">🌐</span>登录IP</span><span class="cn-pop-value">' + escapeHtml(loginIP) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">⏰</span>上次登录</span><span class="cn-pop-value">' + escapeHtml(lastTime) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">📍</span>上次IP</span><span class="cn-pop-value">' + escapeHtml(lastIP) + '</span></div>' +
+              '<div class="cn-pop-actions">' +
+                '<button class="cn-pop-btn cn-pop-btn-primary" onclick="window.CommonNav.changePassword()">🔑 修改密码</button>' +
+                '<button class="cn-pop-btn cn-pop-btn-danger" onclick="if(confirm(\'确定要退出登录吗？\')){window.CommonNav.logout();}">🚪 退出</button>' +
+              '</div>' +
+            '</div>';
+          document.body.appendChild(popover);
+          nameEl.addEventListener('click', function(e) {
+            e.stopPropagation();
+            popover.style.display = popover.style.display === 'block' ? 'none' : 'block';
+            var rect = nameEl.getBoundingClientRect();
+            popover.style.top = Math.min(rect.bottom + 12, window.innerHeight - popover.offsetHeight - 12) + 'px';
+            popover.style.right='auto';popover.style.left=Math.max(12,Math.min(window.innerWidth-popover.offsetWidth-12,rect.right-popover.offsetWidth))+'px';
+          });
+          document.addEventListener('click', function() {
+            popover.style.display = 'none';
+          });
+        }
+      }
+    }
+
+    // 监听用户活动，刷新超时时间
+    ['click', 'keydown', 'scroll'].forEach(function (evt) {
+      document.addEventListener(evt, touchActivity, { passive: true });
+    });
+  }
+
+  setInterval(function () {
+    if (window.navConfig && window.navConfig.currentPage !== 'login' && window.navConfig.requireLogin !== false && !isLoggedIn()) { clearLogin(); window.location.href = LOGIN_PAGE; }
+  }, 15000);
+
+  // ---------- 初始化 ----------
+  function init() {
+    var config = window.navConfig || {};
+    var currentPage = config.currentPage || '';
+    var requireLogin = config.requireLogin !== false;
+
+    // 登录页不需要导航栏和鉴权
+    if (currentPage === 'login') {
+      return;
+    }
+
+    // 需要登录的页面：检查登录状态
+    if (requireLogin && !isLoggedIn()) {
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+
+    // 已登录或不需要登录：渲染导航栏
+    touchActivity();
+    renderNav(currentPage);
+  }
+
+  // 暴露给外部手动调用（报价页解密后动态加载时使用）
+  window.CommonNav = {
+    init: function (opts) {
+      opts = opts || {};
+      window.navConfig = {
+        currentPage: opts.currentPage || window.navConfig?.currentPage || '',
+        requireLogin: opts.requireLogin !== false
+      };
+      init();
+    },
+    logout: logout,
+    changePassword: changePassword,
+    isLoggedIn: isLoggedIn,
+    addExtra: function (html) {
+      var extra = document.getElementById('cnExtra');
+      if (extra) {
+        extra.insertAdjacentHTML('beforeend', html);
+      }
+    },
+    getNavEl: function () {
+      return document.getElementById('commonTopbar');
+    }
+  };
+
+  // 自动初始化（如果页面已设置 navConfig）
+  // 关键：同步立即执行 init()，而非等 DOMContentLoaded。
+  // 所有页面均在 <body> 开头同步引入本脚本，执行时浏览器尚未首次渲染，
+  // 导航栏元素和 body{padding-top:52px} 会在首次渲染前就位，
+  // 页面从第一帧就是最终布局，彻底消除导航栏导致的闪烁。
+  if (window.navConfig) {
+    init();
+  }
+})();
+
+</script>
+<main class="sample-ui sample-workbench"><p id="status" role="status">正在加载，请稍后</p><div id="workspace" hidden>
+<h1 id="samplePageTitle">打样工作台</h1><p id="samplePageIntro"></p><div class="sample-actions"><button id="newSample" class="primary">添加打样</button><button id="refreshSamples">刷新</button></div>
+<label>查找样品<input id="sampleSearch" type="search" placeholder="在已加载记录中搜索：样品、所属人、电话、微信或快递单号"></label>
+<div id="sampleFilters" class="sample-filters" aria-label="按打样进度筛选"></div><div id="sampleList" class="sample-list"></div><div class="sample-actions"><button id="sampleMore" hidden>加载更多</button></div>
+</div></main><script>
+(function(){
+ 'use strict';
+ var listeners=[],socket,timer,retry,ref=0,backoff=1000,joined=false;
+ function emit(table,data){listeners.filter(function(x){return x.table===table;}).forEach(function(x){x.callback(data);});}
+ function send(event,payload,topic){if(socket&&socket.readyState===1)socket.send(JSON.stringify({topic:topic||'realtime:business',event:event,payload:payload,ref:String(++ref),join_ref:'1'}));}
+ function stop(){clearInterval(timer);clearTimeout(retry);joined=false;if(socket){socket.onclose=null;socket.close();socket=null;}}
+ function start(){
+  stop();if(document.hidden||!listeners.length||!SupabaseDB.getSession())return;
+  var token=SupabaseDB.getSession().access_token;
+  socket=new WebSocket(SupabaseDB.connection.url.replace('https:','wss:')+'/realtime/v1/websocket?apikey='+encodeURIComponent(SupabaseDB.connection.publicKey)+'&vsn=1.0.0');
+  socket.onopen=function(){ref=0;send('phx_join',{access_token:token,config:{broadcast:{ack:false,self:false},presence:{enabled:false},postgres_changes:Array.from(new Set(listeners.map(function(x){return x.table;}))).map(function(t){return {event:'*',schema:'public',table:t};})}});timer=setInterval(function(){if(!SupabaseDB.getSession()){stop();return;}send('heartbeat',{},'phoenix');},25000);};
+  socket.onmessage=function(e){try{var m=JSON.parse(e.data);if(m.event==='phx_reply'&&m.ref==='1'){if(m.payload.status!=='ok'){socket.close();return;}joined=true;listeners.forEach(function(x){x.callback({resync:true});});}if(m.event==='system'){if(m.payload.status==='error'){socket.close();return;}if(m.payload.status==='ok')backoff=1000;}if(m.event==='postgres_changes'&&m.payload.data){backoff=1000;emit(m.payload.data.table,m.payload.data);}if(m.event==='phx_error')socket.close();}catch(err){console.warn('实时连接消息无法处理');}};
+  socket.onclose=function(){clearInterval(timer);joined=false;retry=setTimeout(start,backoff);backoff=Math.min(backoff*2,60000);};
+ }
+ window.LiveData={subscribe:function(table,callback){var item={table:table,callback:callback};listeners.push(item);start();return function(){listeners=listeners.filter(function(x){return x!==item;});start();};},isConnected:function(){return joined;}};
+ document.addEventListener('visibilitychange',start);window.addEventListener('online',start);window.addEventListener('pagehide',stop);
+})();
+
+</script><script>
+(function(){
+ 'use strict';
+ var db=SupabaseDB,conn=db.connection,profilePromise;
+ function node(tag,text,parent){var n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(parent)parent.appendChild(n);return n;}
+ function statusLabel(s){return {'打样中':'正在打样','已完成':'打样结束'}[s]||s;}
+ function badge(s,parent){var n=node('span',statusLabel(s),parent);n.className='sample-status';n.dataset.status=s;return n;}
+ function ready(){if(!profilePromise)profilePromise=db.getCurrentProfile();return profilePromise;}
+ function canManage(p){return p.role==='admin'||(p.permissions||[]).includes('sample_manage')||(p.permissions||[]).includes('admin');}
+ function button(parent,text,fn){var b=node('button',text,parent);b.type='button';b.onclick=fn;return b;}
+ function dialog(title){var d=node('dialog',undefined,document.body);d.className='sample-ui sample-dialog';node('h2',title,d);var close=button(d,'关闭',function(){d.close();});close.style.cssText='float:right;margin-top:-42px';d.addEventListener('close',function(){d.remove();});d.showModal();return d;}
+ async function compress(file){if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>15*1024*1024)throw Error('请选择15MB以内的图片');var b=await createImageBitmap(file),canvas=document.createElement('canvas'),ratio=Math.min(1,1600/Math.max(b.width,b.height));canvas.width=Math.round(b.width*ratio);canvas.height=Math.round(b.height*ratio);canvas.getContext('2d').drawImage(b,0,0,canvas.width,canvas.height);b.close();for(var q=.8;q>=.3;q-=.1){var blob=await new Promise(function(resolve){canvas.toBlob(resolve,'image/webp',q);});if(blob&&blob.size<=204800)return blob;}throw Error('图片细节过多，请裁剪后重试');}
+ async function storage(path,method,body,type){var session=db.getSession();if(!session)throw Error('请重新登录');var res=await fetch(conn.url+'/storage/v1/object/'+path,{method:method,headers:{apikey:conn.publicKey,Authorization:'Bearer '+session.access_token,'Content-Type':type||'application/json'},body:body});if(!res.ok)throw Error('图片读取或上传失败，请检查权限后重试');return res;}
+ async function clean(paths){if(paths.length)await storage('sample-images','DELETE',JSON.stringify({prefixes:paths}));}
+ function field(form,name,label,type,required,max){var l=node('label',label,form),i=node(type==='textarea'?'textarea':'input',undefined,l);if(type!=='textarea')i.type=type;i.name=name;if(required)i.required=true;if(max)i.maxLength=max;if(type==='textarea')i.rows=5;return i;}
+ async function sendResult(id){var session=db.getSession();if(!session)throw Error('请重新登录');var response;try{response=await fetch(conn.url+'/functions/v1/sample-delivery',{method:'POST',headers:{apikey:conn.publicKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({sample_id:id})});}catch(e){throw Error('打样已完成，邮件接口暂时无法连接；资料保留等待重试');}var data=await response.json();if(!response.ok)throw Error(data.error||'邮件服务尚未配置，资料保留等待重试');return data;}
+ function changed(){window.dispatchEvent(new Event('samples-changed'));}
+ async function openCreate(){var p=await ready(),d=dialog('添加打样'),form=node('form',undefined,d);form.id='sampleForm';form.className='sample-grid';var title=field(form,'title','样品名称','text',true,120);title.parentNode.className='sample-wide';var req=field(form,'requirements','打样需求','textarea',true,6000);req.placeholder='材料、加工位置、图案尺寸、深度、效果、交期与验收要求';req.parentNode.className='sample-wide';var name=field(form,'contact_name','联系人','text',true,100);name.value=p.full_name||p.username||'';var phone=field(form,'contact','联系电话','tel',true,200);phone.value=p.phone||'';field(form,'wechat','微信号','text',false,120);field(form,'carrier','快递公司','text',false,80);field(form,'tracking','快递单号（可稍后补充）','text',false,120);var photos=field(form,'images','参考图片','file');photos.accept='image/jpeg,image/png,image/webp';photos.multiple=true;photos.parentNode.className='sample-wide';node('span','最多5张，自动压缩后上传',photos.parentNode).className='sample-hint';var message=node('p','',form);message.className='sample-wide sample-error';message.setAttribute('role','status');var submit=node('button','保存打样',form);submit.type='submit';submit.className='primary';
+ form.onsubmit=async function(e){e.preventDefault();submit.disabled=true;var uploaded=[],saved=false;try{var files=Array.from(photos.files);if(files.length>5)throw Error('最多上传5张图片');var id=crypto.randomUUID(),data=Object.fromEntries(new FormData(form));delete data.images;for(var file of files){var blob=await compress(file),path=p.id+'/'+id+'/'+crypto.randomUUID()+'.webp';await storage('sample-images/'+path,'POST',blob,'image/webp');uploaded.push(path);}data.images=uploaded;await db._rpc('create_sample',{p_id:id,p_data:data});saved=true;changed();d.close();}catch(err){if(!saved)try{await clean(uploaded);}catch(ignore){err.message+='；未使用的图片清理失败，请联系管理员';}message.textContent=err.message;}finally{submit.disabled=false;}};
+ }
+ async function get(id){var rows=await db._select('sample_requests','select=*&id=eq.'+encodeURIComponent(id)+'&limit=1');if(!rows[0])throw Error('样品不存在或无权查看');return rows[0];}
+ async function detail(id,target){var p=await ready(),sample=await get(id),d=target||dialog('打样详情');var old=d.querySelector('.sample-detail');if(old)old.remove();var root=node('div',undefined,d);root.className='sample-detail';root.dataset.sampleId=id;badge(sample.status,root);node('h2',sample.title,root);var facts=node('div',undefined,root);facts.className='sample-facts';node('p','所属人：'+(sample.owner_name||'未填写'),facts);node('p','联系人：'+(sample.contact_name||sample.owner_name||'未填写'),facts);var phone=node('p','联系电话：',facts);var call=node('a',sample.contact,phone);call.href='tel:'+String(sample.contact).replace(/[^+\d-]/g,'');node('p','微信：'+(sample.wechat||'未填写'),facts);node('p','快递公司：'+(sample.carrier||'未填写'),facts);node('p','快递单号：'+(sample.tracking||'待寄送'),facts);node('h3','打样需求',root);node('div',sample.requirements,root).className='sample-requirements';node('h3','参考图片',root);var photos=node('div',undefined,root);photos.className='sample-photos';if(!(sample.images||[]).length)node('p','暂无参考图片',photos);if(!d.sampleImageCache){d.sampleImageCache=new Map();d.addEventListener('close',function(){d.sampleImageCache.forEach(URL.revokeObjectURL);d.sampleImageCache.clear();},{once:true});}
+ for(var path of (sample.images||[]).concat(sample.result_images||[])){try{var url=d.sampleImageCache.get(path);if(!url){var response=await storage('authenticated/sample-images/'+path,'GET');url=URL.createObjectURL(await response.blob());if(!d.isConnected){URL.revokeObjectURL(url);continue;}d.sampleImageCache.set(path,url);}var img=node('img',undefined,photos);img.src=url;img.alt='打样参考图片（点击放大）';img.onclick=function(){var zoom=dialog('参考图片');zoom.classList.add('sample-image-dialog');var large=node('img',undefined,zoom);large.src=this.src;};}catch(e){node('p',e.message,photos).className='sample-error';}}
+ var progress=node('section',undefined,root);progress.className='sample-progress';node('h3','打样进度',progress);if(sample.progress_note)node('p',sample.progress_note,progress);node('p',(sample.updated_by_name?'最近处理：'+sample.updated_by_name+' · ':'')+new Date(sample.updated_at||sample.created_at).toLocaleString(),progress).className='sample-hint';var error=node('p','',progress);error.className='sample-error';
+ if(sample.status==='已完成'){node('p',sample.delivery_status||'等待发送结果邮件',progress);if(sample.delivery_error)node('p',sample.delivery_error,progress).className='sample-error';if(canManage(p))button(progress,'重试发送 / 清理',async function(){try{var result=await sendResult(id);changed();if(result.cleaned)d.close();else await detail(id,d);}catch(e){error.textContent=e.message;}});}
+ if(canManage(p)&&sample.status!=='已完成'){var resultLabel=node('label','打样结果图片（最多5张）',progress),resultFiles=node('input',undefined,resultLabel);resultFiles.type='file';resultFiles.accept='image/jpeg,image/png,image/webp';resultFiles.multiple=true;var note=node('textarea',undefined,progress);note.placeholder='处理说明、加工结果或需要沟通的问题';note.maxLength=2000;note.rows=3;note.value=sample.progress_note||'';var actions=node('div',undefined,progress);actions.className='sample-actions';[['已收样','确认收样'],['打样中','正在打样'],['已完成','打样结束']].forEach(function(item){var b=button(actions,item[1],async function(){var buttons=Array.from(actions.querySelectorAll('button'));buttons.forEach(function(x){x.disabled=true;});try{if(item[0]==='已完成'){if(!note.value.trim())throw Error('请填写打样结果说明');var files=Array.from(resultFiles.files),uploaded=[];if(files.length+(sample.result_images||[]).length>5)throw Error('结果图片最多5张');try{for(var file of files){var blob=await compress(file),path=p.id+'/'+id+'/'+crypto.randomUUID()+'.webp';await storage('sample-images/'+path,'POST',blob,'image/webp');uploaded.push(path);}if(uploaded.length){var paths=(sample.result_images||[]).concat(uploaded);await db._rpc('save_sample_results',{p_id:id,p_images:paths});sample.result_images=paths;resultFiles.value='';}}catch(e){try{await clean(uploaded);}catch(_){}throw e;}}await db._rpc('set_sample_progress',{p_id:id,p_status:item[0],p_note:note.value.trim()});changed();if(item[0]==='已完成'){try{var result=await sendResult(id);if(result.cleaned){d.close();changed();return;}}catch(e){await detail(id,d);var target=d.querySelector('.sample-progress');node('p',e.message,target).className='sample-error';return;}}await detail(id,d);}catch(e){error.textContent=e.message;buttons.forEach(function(x){x.disabled=false;});}});b.className='primary';b.disabled=sample.status===item[0];});}
+ if(sample.user_id===p.id&&sample.status!=='已完成'){var shipping=node('details',undefined,root);node('summary','补充 / 修改快递信息',shipping);var form=node('form',undefined,shipping);form.className='sample-grid';var carrier=field(form,'carrier','快递公司','text',false,80),tracking=field(form,'tracking','快递单号','text',false,120);carrier.value=sample.carrier;tracking.value=sample.tracking;var save=node('button','保存快递信息',form);save.type='submit';form.onsubmit=async function(e){e.preventDefault();save.disabled=true;try{await db._rpc('update_sample_shipping',{p_id:id,p_tracking:tracking.value,p_carrier:carrier.value});changed();await detail(id,d);}catch(e){error.textContent=e.message;save.disabled=false;}};}
+ return d;
+ }
+ var columns='id,user_id,owner_name,title,contact_name,contact,wechat,carrier,tracking,status,created_at,updated_at,updated_by_name,delivery_status';
+ window.SampleService={ready:ready,canManage:canManage,node:node,button:button,badge:badge,statusLabel:statusLabel,openCreate:openCreate,openDetail:detail,list:async function(options){options=options||{};var p=await ready(),query='select='+columns+'&order=created_at.desc&limit='+(options.limit||50)+'&offset='+(options.offset||0);if(options.own)query+='&user_id=eq.'+encodeURIComponent(p.id);if(options.status)query+='&status=eq.'+encodeURIComponent(options.status);return db._select('sample_requests',query);}};
+})();
+
+</script><script>
+(async function(){
+ 'use strict';
+ var svc=SampleService,node=svc.node,list=document.getElementById('sampleList'),message=document.getElementById('status'),state='',offset=0,rows=[],generation=0,profile;
+ if(!SupabaseDB.isLoggedIn()){message.textContent='请先登录后查看打样需求。';var a=node('a','前往登录',message);a.href='login.html';return;}
+ try{profile=await svc.ready();}catch(e){message.textContent='登录已失效，请重新登录';return;}
+ var manager=svc.canManage(profile);document.getElementById('workspace').hidden=false;document.getElementById('samplePageTitle').textContent=manager?'打样工作台':'我的打样';document.getElementById('samplePageIntro').textContent=manager?'查看样品归属与需求，联系负责人，及时更新打样进度。':'查看已提交的样品、快递与最新打样进度。';
+ function render(){list.replaceChildren();var keyword=document.getElementById('sampleSearch').value.trim().toLowerCase(),visible=rows.filter(function(s){return [s.title,s.owner_name,s.contact_name,s.contact,s.wechat,s.tracking].join(' ').toLowerCase().includes(keyword);});if(!visible.length)node('p','暂无匹配的打样记录',list).className='sample-empty';visible.forEach(function(s){var card=node('article',undefined,list);card.className='sample-job';svc.badge(s.status,card);node('h2',s.title,card);node('p','所属人：'+s.owner_name,card);node('p','联系人：'+(s.contact_name||s.owner_name),card);node('p','电话：'+s.contact,card);node('p','微信：'+(s.wechat||'未填写'),card);node('p',(s.carrier||'快递')+'：'+(s.tracking||'待寄送'),card);var actions=node('div',undefined,card);actions.className='sample-actions';svc.button(actions,manager?'查看需求 / 更新进度':'查看详情',function(){svc.openDetail(s.id).catch(function(e){message.textContent=e.message;});}).className='primary';});}
+ async function load(more){var current=++generation;message.textContent='正在加载，请稍后';try{var next=more?offset+50:0,data=await svc.list({own:!manager,status:state,offset:next});if(current!==generation)return;offset=next;rows=more?rows.concat(data):data;render();document.getElementById('sampleMore').hidden=data.length<50;message.textContent='已加载 '+rows.length+' 件样品';}catch(e){if(current===generation)message.textContent='加载失败：'+e.message;}}
+ var filters=document.getElementById('sampleFilters');[['','全部'],['待收样','待收样'],['已收样','已收样'],['打样中','正在打样'],['已完成','打样结束']].forEach(function(item){var b=svc.button(filters,item[1],function(){state=item[0];Array.from(filters.children).forEach(function(x){x.classList.toggle('active',x===b);});load(false);});b.className=item[0]===''?'active':'';});
+ document.getElementById('sampleSearch').oninput=render;document.getElementById('refreshSamples').onclick=function(){load(false);};document.getElementById('sampleMore').onclick=function(){load(true);};document.getElementById('newSample').onclick=function(){svc.openCreate().catch(function(e){message.textContent=e.message;});};
+ var timer;function refresh(){clearTimeout(timer);timer=setTimeout(function(){load(false);},250);}window.addEventListener('samples-changed',refresh);if(window.LiveData)LiveData.subscribe('sample_requests',refresh);await load(false);
+ var id=new URLSearchParams(location.search).get('id');if(id)svc.openDetail(id).catch(function(e){message.textContent=e.message;});
+})();
+
+</script><script>
+(function(){
+ 'use strict';
+ var style=document.createElement('style');style.textContent='#specialPriceBox button,#specialPriceDialog button,#priceNotificationDialog button{border:1px solid #b9cbdc;border-radius:7px;background:#12334d;color:white;padding:8px 14px;cursor:pointer;font:inherit}#specialPriceBox button:disabled,#specialPriceDialog button:disabled,#priceNotificationDialog button:disabled{opacity:.55;cursor:default}#specialPriceBox p{margin:10px 0;line-height:1.6}#specialPriceDialog::backdrop,#priceNotificationDialog::backdrop{background:rgba(17,36,55,.25)}#specialPriceDialog textarea,#priceNotificationDialog textarea{box-sizing:border-box;border:1px solid #b9cbdc;border-radius:7px;padding:10px;font:inherit}#specialPriceDialog,#priceNotificationDialog{box-sizing:border-box;color:#163650}';document.head.appendChild(style);
+ var dialog,list,detail,status,bell,profile,db,loading=false;
+ function node(tag,text,parent){var n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(parent)parent.appendChild(n);return n;}
+ function button(parent,text,fn){var b=node('button',text,parent);b.type='button';b.style.margin='6px';b.onclick=async function(){b.disabled=true;try{await fn();}catch(e){status.textContent=e.message;}finally{b.disabled=false;}};return b;}
+ function field(parent,label,type,value){var l=node('label',label,parent);l.style.cssText='display:block;margin:12px 0';var i=node('input',undefined,l);i.type=type;i.value=value||'';i.style.cssText='display:block;padding:8px;max-width:100%;border:1px solid #b9c9d5';return i;}
+ function terms(r){return '起订 '+r.min_quantity+' 台；'+(r.pickup_only?'须自提':'配送方式不限')+'；'+(r.valid_until?'有效至 '+new Date(r.valid_until).toLocaleString():'长期有效');}
+ async function update(){if(loading)return;loading=true;try{var unread=await db._select('price_notifications','select=id&is_read=eq.false&limit=100');bell=document.getElementById('topNotifBtn');if(bell){bell.textContent='🔔'+(unread.length?' '+unread.length+(unread.length===100?'+':''):'');bell.title='价格申请通知';if(!bell.dataset.priceBound){bell.dataset.priceBound='1';bell.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();open();},true);}}}finally{loading=false;}}
+ async function load(){list.replaceChildren();detail.replaceChildren();status.textContent='正在加载，请稍后';var notices=await db._select('price_notifications','select=*&order=created_at.desc&limit=50');if(!notices.length)node('p','暂无价格申请通知',list);notices.forEach(function(n){button(list,(n.is_read?'':'● ')+({submitted:'收到特价申请',approved:'价格申请成功',rejected:'价格申请被拒绝'}[n.kind])+' · '+new Date(n.created_at).toLocaleString(),async function(){await show(n);});});status.textContent='显示最近 50 条通知';}
+ async function show(n){
+  var rows=await db._select('special_price_requests','select=*&id=eq.'+encodeURIComponent(n.request_id)+'&limit=1');var r=rows[0];if(!r)throw new Error('申请不存在或无权查看');detail.replaceChildren();
+  node('h3',r.agent_name+' → '+r.supervisor_name,detail);node('p','采购 '+r.requested_quantity+' 台；'+(r.requested_pickup?'自提':'配送')+'；'+({pending:'待处理',approved:'已批准',rejected:'已拒绝'}[r.status]),detail);
+  var hardware=node('div',undefined,detail);hardware.style.cssText='max-height:220px;overflow:auto;background:#f5f8fb;padding:12px';
+  (r.configuration.details||[]).forEach(function(d){node('p',(d.name||'')+'：'+(d.spec||'')+(d.choices||[]).map(function(c){return c.name+(c.spec?' '+c.spec:'');}).join(' / ')+(d.items||[]).join(' / '),hardware);});
+  node('p','申请说明：'+(r.message||'无'),detail);
+  if(r.status==='pending'&&r.supervisor_id===profile.id){
+   var form=node('form',undefined,detail),price=field(form,'批准单价（元/台，含 1% 普票；13% 专票按报价页规则换算）','number','');price.min='.01';price.max='9999999999.99';price.step='.01';price.required=true;price.id='approvalUnitPrice';
+   var minimum=field(form,'起订台数','number','1');minimum.min='1';minimum.max='100000';minimum.step='1';minimum.required=true;minimum.id='approvalMinQuantity';
+   var label=node('label',undefined,form),pickup=node('input',undefined,label);pickup.type='checkbox';pickup.id='approvalPickup';label.append(' 仅自提时生效');
+   var expiry=field(form,'有效期截止（留空表示长期有效）','datetime-local','');expiry.id='approvalExpiry';
+   var note=node('textarea',undefined,form);note.maxLength=2000;note.rows=3;note.placeholder='审批说明 / 拒绝原因';note.style.width='100%';note.id='approvalNote';
+   async function decide(approve){if(approve&&!form.reportValidity())return;await db._rpc('decide_special_price',{p_id:r.id,p_approve:approve,p_unit_price:approve?Number(price.value):null,p_min_quantity:approve?Number(minimum.value):1,p_pickup_only:approve&&pickup.checked,p_valid_until:approve&&expiry.value?new Date(expiry.value).toISOString():null,p_note:note.value.trim()});await show(n);await update();status.textContent=approve?'已批准，代理会收到成功通知':'已拒绝，代理会收到通知';window.dispatchEvent(new Event('special-price-changed'));}
+   var approve=button(form,'批准申请',function(){return decide(true);});approve.id='approveSpecialPrice';button(form,'拒绝申请',function(){return decide(false);});form.onsubmit=function(e){e.preventDefault();};
+  }else if(r.status==='approved'){node('p','批准单价：'+r.unit_price+' 元/台（普票）。'+terms(r),detail);node('p','满足条件时，该配置的报价自动使用申请价。',detail);}
+  if(r.decision_note)node('p','审批说明：'+r.decision_note,detail);
+  await db._rpc('read_price_notification',{p_id:n.id});await update();
+ }
+ function open(){if(!dialog){dialog=node('dialog',undefined,document.body);dialog.id='priceNotificationDialog';dialog.style.cssText='width:min(660px,92vw);max-height:85vh;overflow:auto;border:1px solid #d4dfea;border-radius:14px;padding:22px';node('h2','价格申请通知',dialog);button(dialog,'关闭',function(){dialog.close();});button(dialog,'刷新',load);status=node('p','',dialog);status.setAttribute('role','status');list=node('div',undefined,dialog);list.style.cssText='max-height:180px;overflow:auto';detail=node('section',undefined,dialog);}dialog.showModal();load().catch(function(e){status.textContent=e.message;});}
+ setTimeout(async function(){try{db=window.SupabaseDB;if(!db||!db.isLoggedIn())return;profile=await db.getPageProfile();window.openPriceRequests=open;await update();if(!window.LiveData)await new Promise(function(resolve,reject){var s=document.createElement('script');s.src='live-data.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});LiveData.subscribe('price_notifications',function(){update().catch(function(){});window.dispatchEvent(new Event('special-price-changed'));});window.addEventListener('price-notifications-changed',function(){update().catch(function(){});});window.addEventListener('focus',function(){update().catch(function(){});});}catch(e){console.warn('价格通知暂不可用：'+e.message);}},600);
+})();
+
+</script></body></html>

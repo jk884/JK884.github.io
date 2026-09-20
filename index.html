@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="0; url=login.html">
+<title>锦刻激光 - 正在跳转...</title>
+<style>
+  body { margin:0; display:flex; align-items:center; justify-content:center; height:100vh;
+         background:linear-gradient(135deg,#12314b,#1e4976); font-family:sans-serif; color:#fff; }
+  .loading { text-align:center; }
+  .spinner { width:40px; height:40px; border:3px solid rgba(255,255,255,.2); border-top-color:#f0a832;
+              border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="loading">
+  <div class="spinner"></div>
+  <div>正在进入锦刻激光管理系统...</div>
+</div>
+<script>
+  // 如果已登录，直接跳报价页；否则跳登录页
+  try {
+    var hasLogin = !!(sessionStorage.getItem('jk_pg_key') || sessionStorage.getItem('jk_token'));
+    if (hasLogin) {
+      window.location.replace('quote.html');
+    } else {
+      window.location.replace('login.html');
+    }
+  } catch(e) {
+    window.location.replace('login.html');
+  }
+</script>
+</body>
+</html>
+

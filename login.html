@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>锦刻激光 - 系统登录</title>
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.login-container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+.login-header {
+  background: linear-gradient(135deg, #12314b, #1e4976);
+  padding: 30px 20px;
+  text-align: center;
+  color: #fff;
+}
+.login-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.login-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.login-body {
+  padding: 28px 36px 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+#loginForm, #systemSelect {
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-group {
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  padding-left: 2px;
+  text-align: center;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.form-input {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display: block;
+  padding: 13px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #f9fafb;
+  transition: all 0.2s;
+  outline: none;
+}
+.form-input::placeholder {
+  color: #9ca3af;
+}
+.form-input:focus {
+  border-color: #f59e0b;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+  letter-spacing: 4px;
+}
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+.login-btn:active {
+  transform: translateY(0);
+}
+.error-msg {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 8px;
+  text-align: center;
+  display: none;
+}
+
+/* 登录成功后的系统选择 */
+.system-select {
+  display: none;
+}
+.system-select.show {
+  display: block;
+}
+.system-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+}
+.system-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.system-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+.system-card:hover {
+  border-color: #3182ce;
+  background: #f0f7ff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(49, 130, 206, 0.15);
+}
+.system-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.system-icon.quote { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+.system-icon.contract { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+.system-icon.inventory { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+.system-icon.admin { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+.system-info {
+  flex: 1;
+  min-width: 0;
+}
+.system-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+.system-desc {
+  font-size: 12px;
+  color: #6b7280;
+}
+.system-arrow {
+  color: #9ca3af;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.logout-link {
+  text-align: center;
+  margin-top: 16px;
+}
+.logout-link a {
+  color: #6b7280;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.logout-link a:hover {
+  color: #3182ce;
+}
+
+/* 顶部导航栏 - 与其他页面统一 */
+.topbar{background:#000;color:#fff;border-bottom:3px solid var(--amber,#e8a33d)}
+.topbar .inner{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:nowrap;overflow:hidden}
+.brand{display:flex;align-items:center;gap:10px}
+.logo-mark{width:38px;height:38px;flex:none;border-radius:9px;background:linear-gradient(135deg,var(--amber,#e8a33d),#f0c06a);display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:22px;height:22px}
+.brand-name{font-size:19px;font-weight:700;letter-spacing:.5px}
+.brand-sub{font-size:12px;color:#a9c1d6;margin-top:1px}
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+
+
+</style>
+</head>
+<body>
+<script>
+window.navConfig = { currentPage: 'login', requireLogin: false };
+</script>
+<script>
+/**
+ * 锦刻激光 - 统一导航栏与登录鉴权
+ * 用法：在页面中设置 window.navConfig = { currentPage: 'quote|contract|warehouse|login', requireLogin: true|false }
+ * 然后引入 script src="common-nav.js"
+ */
+(function () {
+  'use strict';
+
+  var NAV_ITEMS = [
+    { key: 'quote',     label: '实时报价', url: 'quote.html' },
+    { key: 'contract',  label: '合同管理', url: 'contract.html' },
+    { key: 'warehouse', label: '仓储管理', url: 'warehouse.html' },
+    { key: 'admin',     label: '账号管理', url: 'admin.html' },
+    { key: 'samples', label: '打样工作台', url: 'samples.html' }
+  ];
+
+  var LOGIN_PAGE = 'login.html';
+  var IDLE_TIMEOUT = 20 * 60 * 1000; // 20分钟无操作超时
+
+  // ---------- XSS 防护：HTML 转义函数 ----------
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\//g, '&#x2F;')
+      .replace(/`/g, '&#x60;')
+      .replace(/=/g, '&#x3D;');
+  }
+
+  // 暴露到全局，供其他脚本使用
+  window.escapeHtml = escapeHtml;
+
+  // ---------- 登录状态管理 ----------
+  function isLoggedIn() {
+    try {
+      var key = window.SupabaseDB && SupabaseDB.isLoggedIn();
+      var lastActivity = parseInt(sessionStorage.getItem('jk_last_activity') || '0', 10);
+      if (!key) return false;
+      if (!lastActivity || lastActivity > Date.now() || Date.now() - lastActivity >= IDLE_TIMEOUT) {
+        clearLogin();
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearLogin() {
+    if (window.SupabaseDB) SupabaseDB.clearSession();
+    try {
+      ['jk_pg_key', 'jk_token', 'jk_username', 'jk_user_name', 'jk_user_role',
+       'jk_config', 'jk_user_info', 'jk_last_activity', 'jk_password'].forEach(function (k) {
+        sessionStorage.removeItem(k);
+      });
+    } catch (e) {}
+  }
+
+  function getCurrentUser() {
+    try {
+      return {
+        username: sessionStorage.getItem('jk_username') || '',
+        name: sessionStorage.getItem('jk_user_name') || sessionStorage.getItem('jk_username') || '用户',
+        role: sessionStorage.getItem('jk_user_role') || '',
+        permissions: JSON.parse(sessionStorage.getItem('jk_permissions') || '[]')
+      };
+    } catch (e) {
+      return { username: '', name: '用户', role: '', permissions: [] };
+    }
+  }
+
+  function touchActivity() {
+    if (window.navConfig && window.navConfig.requireLogin === false && !isLoggedIn()) return;
+    if (!isLoggedIn()) { clearLogin(); window.location.href = LOGIN_PAGE; return; }
+    try {
+      sessionStorage.setItem('jk_last_activity', String(Date.now()));
+    } catch (e) {}
+  }
+
+  function logout() {
+    // 使用 Supabase Auth 登出
+    if (window.SupabaseDB && typeof SupabaseDB.authLogout === 'function') {
+      SupabaseDB.authLogout().catch(function () {});
+    }
+    clearLogin();
+    window.location.href = LOGIN_PAGE;
+  }
+
+  // 修改密码 - 模态框版本
+  function changePassword() {
+    try {
+      var user = getCurrentUser();
+      if (!user || !user.username) {
+        showPwdModalError('未登录，无法修改密码');
+        return;
+      }
+      openPwdModal();
+    } catch(e) {
+      alert('修改密码出错：' + e.message);
+    }
+  }
+
+  // 注入修改密码模态框样式
+  function injectPwdModalStyle() {
+    if (document.getElementById('cn-pwd-modal-style')) return;
+    var style = document.createElement('style');
+    style.id = 'cn-pwd-modal-style';
+    style.textContent = [
+      '.cn-pwd-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center;animation:cnFadeIn .2s ease}',
+      '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}',
+      '@keyframes cnSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}',
+      '.cn-pwd-modal{background:#fff;border-radius:16px;width:380px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;animation:cnSlideUp .25s ease}',
+      '.cn-pwd-header{padding:20px 24px 16px;border-bottom:1px solid #f0f0f0}',
+      '.cn-pwd-title{font-size:18px;font-weight:700;color:#1a1a2e;margin:0}',
+      '.cn-pwd-body{padding:20px 24px}',
+      '.cn-pwd-field{margin-bottom:16px}',
+      '.cn-pwd-field:last-child{margin-bottom:0}',
+      '.cn-pwd-label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:6px}',
+      '.cn-pwd-input{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;box-sizing:border-box;transition:border-color .2s,box-shadow .2s;outline:none}',
+      '.cn-pwd-input:focus{border-color:#4f7cff;box-shadow:0 0 0 3px rgba(79,124,255,.15)}',
+      '.cn-pwd-error{color:#e74c3c;font-size:12px;margin-top:6px;min-height:16px;display:none}',
+      '.cn-pwd-error.show{display:block}',
+      '.cn-pwd-footer{padding:16px 24px;background:#fafafa;display:flex;gap:12px;justify-content:flex-end}',
+      '.cn-pwd-btn{padding:9px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s}',
+      '.cn-pwd-btn-cancel{background:#f0f0f0;color:#666}',
+      '.cn-pwd-btn-cancel:hover{background:#e4e4e4}',
+      '.cn-pwd-btn-confirm{background:linear-gradient(135deg,#4f7cff,#3b5fe0);color:#fff}',
+      '.cn-pwd-btn-confirm:hover{background:linear-gradient(135deg,#3b5fe0,#2a4bc8);transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,124,255,.3)}',
+      '.cn-pwd-btn-confirm:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}',
+      '.cn-pwd-success{color:#27ae60;font-size:14px;text-align:center;padding:10px 0}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  // 打开修改密码模态框
+  function openPwdModal() {
+    injectPwdModalStyle();
+    closePwdModal();
+
+    var mask = document.createElement('div');
+    mask.className = 'cn-pwd-mask';
+    mask.id = 'cn-pwd-mask';
+    mask.innerHTML = [
+      '<div class="cn-pwd-modal">',
+      '  <div class="cn-pwd-header"><h3 class="cn-pwd-title">修改密码</h3></div>',
+      '  <div class="cn-pwd-body">',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">当前密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdOld" placeholder="请输入当前密码" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdOldErr"></div>',
+      '    </div>',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">新密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdNew" placeholder="至少6位" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdNewErr"></div>',
+      '    </div>',
+      '    <div class="cn-pwd-field">',
+      '      <label class="cn-pwd-label">确认新密码</label>',
+      '      <input type="password" class="cn-pwd-input" id="cnPwdConfirm" placeholder="再次输入新密码" autocomplete="off">',
+      '      <div class="cn-pwd-error" id="cnPwdConfirmErr"></div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="cn-pwd-footer">',
+      '    <button class="cn-pwd-btn cn-pwd-btn-cancel" id="cnPwdCancel">取消</button>',
+      '    <button class="cn-pwd-btn cn-pwd-btn-confirm" id="cnPwdSubmit">确认修改</button>',
+      '  </div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(mask);
+
+    // 点击遮罩关闭
+    mask.addEventListener('click', function(e) {
+      if (e.target === mask) closePwdModal();
+    });
+    // ESC关闭
+    var escHandler = function(e) {
+      if (e.key === 'Escape') { closePwdModal(); document.removeEventListener('keydown', escHandler); }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    var cnPwdCancel = document.getElementById('cnPwdCancel');
+    if (cnPwdCancel) cnPwdCancel.addEventListener('click', closePwdModal);
+    var cnPwdSubmit = document.getElementById('cnPwdSubmit');
+    if (cnPwdSubmit) cnPwdSubmit.addEventListener('click', submitPwdChange);
+
+    // 回车提交
+    ['cnPwdOld', 'cnPwdNew', 'cnPwdConfirm'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitPwdChange();
+      });
+    });
+
+    setTimeout(function() { var oldPwd = document.getElementById('cnPwdOld'); if (oldPwd) oldPwd.focus(); }, 100);
+  }
+
+  function closePwdModal() {
+    var mask = document.getElementById('cn-pwd-mask');
+    if (mask) mask.remove();
+  }
+
+  function showPwdModalError(fieldId, msg) {
+    var el = document.getElementById(fieldId);
+    if (el) {
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+  }
+  function clearPwdModalErrors() {
+    ['cnPwdOldErr', 'cnPwdNewErr', 'cnPwdConfirmErr'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.textContent = ''; el.classList.remove('show'); }
+    });
+  }
+
+  function submitPwdChange() {
+    clearPwdModalErrors();
+    var oldEl = document.getElementById('cnPwdOld'); if (!oldEl) return; var oldPwd = oldEl.value;
+    var newEl = document.getElementById('cnPwdNew'); if (!newEl) return; var newPwd = newEl.value;
+    var confirmEl = document.getElementById('cnPwdConfirm'); if (!confirmEl) return; var confirmPwd = confirmEl.value;
+    var hasError = false;
+
+    if (!oldPwd) { showPwdModalError('cnPwdOldErr', '请输入当前密码'); hasError = true; }
+    if (!newPwd) { showPwdModalError('cnPwdNewErr', '请输入新密码'); hasError = true; }
+    else if (newPwd.length < 6) { showPwdModalError('cnPwdNewErr', '密码长度不能少于6位'); hasError = true; }
+    if (!confirmPwd) { showPwdModalError('cnPwdConfirmErr', '请确认新密码'); hasError = true; }
+    else if (newPwd !== confirmPwd) { showPwdModalError('cnPwdConfirmErr', '两次输入的密码不一致'); hasError = true; }
+    if (oldPwd && newPwd && oldPwd === newPwd) { showPwdModalError('cnPwdNewErr', '新密码不能与旧密码相同'); hasError = true; }
+    if (hasError) return;
+
+    var submitBtn = document.getElementById('cnPwdSubmit');
+    if (!submitBtn) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '提交中...';
+
+    var user = getCurrentUser();
+    SupabaseDB.updatePassword(user.username, oldPwd, newPwd).then(function (success) {
+      if (!success) { showPwdModalError('cnPwdOldErr', '当前密码错误'); throw new Error('wrong password'); }
+      sessionStorage.removeItem('jk_password');
+      var info = null;
+      try { info = JSON.parse(sessionStorage.getItem('jk_user_info') || 'null'); } catch(e) {}
+      if (info) { delete info.password; sessionStorage.setItem('jk_user_info', JSON.stringify(info)); }
+      var body = document.querySelector('.cn-pwd-body');
+      if (body) {
+        body.innerHTML = '<div class="cn-pwd-success">密码修改成功！</div>';
+        var cancelBtn = document.getElementById('cnPwdCancel'); if (cancelBtn) cancelBtn.textContent = '关闭';
+        var submitBtnHide = document.getElementById('cnPwdSubmit'); if (submitBtnHide) submitBtnHide.style.display = 'none';
+      }
+    }).catch(function(e) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '确认修改'; }
+      if (e.message !== 'wrong password') {
+        showPwdModalError('cnPwdNewErr', '修改失败：' + e.message);
+      }
+    });
+  }
+
+  // ---------- 导航栏渲染 ----------
+  function buildNav(currentPage) {
+    var user = getCurrentUser();
+    var roleLabel = user.role === 'admin' ? '管理员' : (user.role === 'operator' ? '运营' : (user.role === 'agent' ? '代理' : ''));
+    var perms = user.permissions || [];
+
+    var itemsHtml = NAV_ITEMS.filter(function (item) {
+      // 管理员显示所有；其他用户按权限过滤
+      if (user.role === 'admin' || perms.indexOf('admin') >= 0 || perms.indexOf('*') >= 0) return true;
+      return item.key==='samples' ? perms.indexOf('sample_manage')>=0 : perms.indexOf(item.key)>=0;
+    }).map(function (item) {
+      var active = item.key === currentPage ? ' class="cn-active"' : '';
+      return '<a href="' + item.url + '"' + active + '>' + item.label + '</a>';
+    }).join('');
+
+    var html =
+      '<div class="cn-topbar" id="commonTopbar">' +
+        '<div class="cn-inner">' +
+          '<div class="cn-brand">' +
+            '<div class="cn-logo">锦</div>' +
+            '<span class="cn-brand-name">锦刻激光</span>' +
+          '</div>' +
+          '<nav class="cn-menu">' + itemsHtml + '</nav>' +
+          '<div class="cn-extra" id="cnExtra"></div>' +
+          '<div class="cn-user">' +
+            (roleLabel ? '<span class="cn-role">' + roleLabel + '</span>' : '') +
+            '<span class="cn-username">' + escapeHtml(user.name) + '</span>' +
+            '<button class="cn-logout" id="cnLogoutBtn">退出</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    return html;
+  }
+
+  function injectStyles() {
+    if (document.getElementById('cnNavStyles')) return;
+    var css =
+      '.cn-topbar{position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#12314b,#1e4976);' +
+      'box-shadow:0 2px 12px rgba(0,0,0,.18);height:52px;display:flex;align-items:center;}' +
+      '.cn-inner{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:32px;width:100%;box-sizing:border-box;}' +
+      '.cn-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}' +
+      '.cn-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f0a832,#e07b1a);' +
+      'display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}' +
+      '.cn-brand-name{color:#fff;font-weight:700;font-size:15px;letter-spacing:1px;}' +
+      '.cn-menu{display:flex;gap:4px;flex:1;}' +
+      '.cn-menu a{color:rgba(255,255,255,.75);text-decoration:none;font-size:14px;padding:8px 16px;' +
+      'border-radius:6px;transition:all .2s;white-space:nowrap;}' +
+      '.cn-menu a:hover{color:#fff;background:rgba(255,255,255,.1);}' +
+      '.cn-menu a.cn-active{color:#fff;background:rgba(240,168,50,.25);font-weight:600;}' +
+      '.cn-user{display:flex;align-items:center;gap:10px;flex-shrink:0;}' +
+      '.cn-extra{display:flex;align-items:center;gap:8px;flex-shrink:0;}' +
+      '.cn-extra button,.cn-extra a{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);' +
+      'padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;text-decoration:none;transition:background .2s;}' +
+      '.cn-extra button:hover,.cn-extra a:hover{background:rgba(255,255,255,.22);}' +
+      '.cn-role{background:rgba(240,168,50,.2);color:#f0a832;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600;}' +
+      '.cn-username{color:rgba(255,255,255,.85);font-size:13px;}' +
+      '.cn-logout{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);' +
+      'padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;transition:background .2s;}' +
+      '.cn-logout:hover{background:rgba(255,255,255,.22);}' +
+      '@media(max-width:768px){.cn-inner{padding:0 12px;gap:12px;min-width:0;}.cn-menu{min-width:0;overflow-x:auto;flex-wrap:nowrap;}.cn-menu a{flex-shrink:0;padding:6px 10px;font-size:13px;}.cn-extra{max-width:130px;}.cn-extra #opInfoNameCompact{max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}' +
+      '.cn-username{display:none;}.cn-brand-name{display:none;}}' +
+      'body{padding-top:52px !important;}' +
+      /* 用户信息弹窗 - 一体化卡片设计 */
+      '#cnUserPopover{isolation:isolate;opacity:1!important;display:none;position:fixed;top:64px;right:16px;left:auto;margin-left:0;background:#fff;border-radius:16px;box-shadow:0 16px 48px rgba(18,49,75,.25),0 4px 12px rgba(0,0,0,.1);z-index:10002;width:min(320px,calc(100vw - 24px));max-height:calc(100dvh - 90px);overflow:auto;animation:none;border:1px solid rgba(18,49,75,.08);}' +
+      '#cnUserPopover::before{content:"";position:absolute;top:-6px;left:50%;margin-left:-6px;width:12px;height:12px;background:#1a3f5f;transform:rotate(45deg);border-left:1px solid rgba(18,49,75,.08);border-top:1px solid rgba(18,49,75,.08);z-index:0;}' +
+      '@keyframes cnPopFade{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}' +
+      '#cnUserPopover .cn-pop-head{padding:18px 18px 14px;background:linear-gradient(135deg,#0f2a42 0%,#1a3f5f 50%,#1e4976 100%);color:#fff;position:relative;border-radius:16px 16px 0 0;}' +
+      '#cnUserPopover .cn-pop-head::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:3px;background:linear-gradient(90deg,#e8a33d,#f0c060,#e8a33d);}' +
+      '#cnUserPopover .cn-pop-user-row{display:flex;align-items:center;gap:12px;}' +
+      '#cnUserPopover .cn-pop-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#e8a33d,#f0c060);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#12314b;flex-shrink:0;box-shadow:0 2px 8px rgba(232,163,61,.4);}' +
+      '#cnUserPopover .cn-pop-name{font-size:16px;font-weight:700;margin-bottom:3px;}' +
+      '#cnUserPopover .cn-pop-role{display:inline-block;background:rgba(232,163,61,.2);color:#f0c060;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;letter-spacing:.5px;}' +
+      '#cnUserPopover .cn-pop-body{padding:6px 18px 14px;}' +
+      '#cnUserPopover .cn-pop-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:12.5px;border-bottom:1px solid #f3f5f8;}' +
+      '#cnUserPopover .cn-pop-row:last-of-type{border-bottom:none;}' +
+      '#cnUserPopover .cn-pop-label{color:#8a9bb0;display:flex;align-items:center;gap:7px;font-weight:500;}' +
+      '#cnUserPopover .cn-pop-label .cn-pop-icon{font-size:13px;opacity:.8;}' +
+      '#cnUserPopover .cn-pop-value{color:#12314b;font-weight:600;font-size:12px;}' +
+      '#cnUserPopover .cn-pop-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #f3f5f8;}' +
+      '#cnUserPopover .cn-pop-btn{flex:1;padding:9px 0;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s ease;display:flex;align-items:center;justify-content:center;gap:5px;}' +
+      '#cnUserPopover .cn-pop-btn-primary{background:#12314b;color:#fff;}' +
+      '#cnUserPopover .cn-pop-btn-primary:hover{background:#1a3f5f;}' +
+      '#cnUserPopover .cn-pop-btn-danger{background:#fef0ef;color:#e74c3c;border:1px solid #fdd5d2;}' +
+      '#cnUserPopover .cn-pop-btn-danger:hover{background:#fde2e0;}';
+    var style = document.createElement('style');
+    style.id = 'cnNavStyles';
+    style.textContent = css;
+    document.head.appendChild(style);
+  }
+
+  function renderNav(currentPage) {
+    // 避免重复渲染
+    if (document.getElementById('commonTopbar')) return;
+
+    injectStyles();
+
+    var navEl = document.createElement('div');
+    navEl.innerHTML = buildNav(currentPage);
+    document.body.insertBefore(navEl.firstChild, document.body.firstChild);
+    if(!isLoggedIn()){
+      var guestArea=document.querySelector('.cn-user');
+      if(guestArea)guestArea.innerHTML='<a class="cn-logout" href="login.html">登录</a>';
+    }
+
+    var logoutBtn = document.getElementById('cnLogoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (confirm('确定要退出登录吗？')) {
+          logout();
+        }
+      });
+    }
+
+    // 预填充右侧按钮组：已登录时直接显示用户名/通知/修改密码/退出，避免页面切换时闪烁
+    if (isLoggedIn()) {
+      var user = getCurrentUser();
+      var extra = document.getElementById('cnExtra');
+      var cnUser = document.querySelector('.cn-user');
+      if (cnUser) cnUser.style.display = 'none';
+      if (extra && extra.children.length === 0) {
+        extra.innerHTML =
+          '<span id="opInfoNameCompact" style="font-weight:600;color:#fff;font-size:13px;cursor:pointer;position:relative;" title="点击查看详情">' + escapeHtml(user.name) + '</span>' +
+          '<div id="topNotifWrap" style="position:relative;display:inline-block;">' +
+            '<button id="topNotifBtn" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:14px;padding:4px 8px;border-radius:16px;cursor:pointer;">🔔</button>' +
+          '</div>';
+
+        // 给用户名添加点击事件，弹出用户信息
+        var nameEl = document.getElementById('opInfoNameCompact');
+        if (nameEl) {
+          var popover = document.createElement('div');
+          popover.id = 'cnUserPopover';
+          var roleLabel = user.role === 'admin' ? '管理员' : (user.role === 'operator' ? '运营' : (user.role === 'agent' ? '代理' : '用户'));
+          var perms = user.permissions || [];
+          var permLabels = [];
+          if (perms.indexOf('quote') >= 0) permLabels.push('报价');
+          if (perms.indexOf('contract') >= 0) permLabels.push('合同');
+          if (perms.indexOf('warehouse') >= 0) permLabels.push('仓储');
+          if (perms.indexOf('admin') >= 0) permLabels.push('管理');
+          if (perms.indexOf('sample_manage')>=0) permLabels.push('打样处理');
+          var loginTime = '未记录', loginIP = '未记录', lastTime = '首次登录', lastIP = '未记录';
+          try {
+            var ui = JSON.parse(sessionStorage.getItem('jk_user_info') || '{}');
+            loginTime = ui.currentLoginTime || '--';
+            loginIP = ui.currentLoginIP || '--';
+            lastTime = ui.lastLoginTime || '--';
+            lastIP = ui.lastLoginIP || '--';
+          } catch(e) {}
+          var avatarChar = user.name ? user.name.charAt(0) : 'U';
+          popover.innerHTML =
+            '<div class="cn-pop-head">' +
+              '<div class="cn-pop-user-row">' +
+                '<div class="cn-pop-avatar">' + escapeHtml(avatarChar) + '</div>' +
+                '<div>' +
+                  '<div class="cn-pop-name">' + escapeHtml(user.name) + '</div>' +
+                  '<span class="cn-pop-role">👤 ' + roleLabel + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="cn-pop-body">' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">📋</span>权限</span><span class="cn-pop-value">' + (permLabels.length ? permLabels.join('、') : '--') + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">🕐</span>本次登录</span><span class="cn-pop-value">' + escapeHtml(loginTime) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">🌐</span>登录IP</span><span class="cn-pop-value">' + escapeHtml(loginIP) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">⏰</span>上次登录</span><span class="cn-pop-value">' + escapeHtml(lastTime) + '</span></div>' +
+              '<div class="cn-pop-row"><span class="cn-pop-label"><span class="cn-pop-icon">📍</span>上次IP</span><span class="cn-pop-value">' + escapeHtml(lastIP) + '</span></div>' +
+              '<div class="cn-pop-actions">' +
+                '<button class="cn-pop-btn cn-pop-btn-primary" onclick="window.CommonNav.changePassword()">🔑 修改密码</button>' +
+                '<button class="cn-pop-btn cn-pop-btn-danger" onclick="if(confirm(\'确定要退出登录吗？\')){window.CommonNav.logout();}">🚪 退出</button>' +
+              '</div>' +
+            '</div>';
+          document.body.appendChild(popover);
+          nameEl.addEventListener('click', function(e) {
+            e.stopPropagation();
+            popover.style.display = popover.style.display === 'block' ? 'none' : 'block';
+            var rect = nameEl.getBoundingClientRect();
+            popover.style.top = Math.min(rect.bottom + 12, window.innerHeight - popover.offsetHeight - 12) + 'px';
+            popover.style.right='auto';popover.style.left=Math.max(12,Math.min(window.innerWidth-popover.offsetWidth-12,rect.right-popover.offsetWidth))+'px';
+          });
+          document.addEventListener('click', function() {
+            popover.style.display = 'none';
+          });
+        }
+      }
+    }
+
+    // 监听用户活动，刷新超时时间
+    ['click', 'keydown', 'scroll'].forEach(function (evt) {
+      document.addEventListener(evt, touchActivity, { passive: true });
+    });
+  }
+
+  setInterval(function () {
+    if (window.navConfig && window.navConfig.currentPage !== 'login' && window.navConfig.requireLogin !== false && !isLoggedIn()) { clearLogin(); window.location.href = LOGIN_PAGE; }
+  }, 15000);
+
+  // ---------- 初始化 ----------
+  function init() {
+    var config = window.navConfig || {};
+    var currentPage = config.currentPage || '';
+    var requireLogin = config.requireLogin !== false;
+
+    // 登录页不需要导航栏和鉴权
+    if (currentPage === 'login') {
+      return;
+    }
+
+    // 需要登录的页面：检查登录状态
+    if (requireLogin && !isLoggedIn()) {
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+
+    // 已登录或不需要登录：渲染导航栏
+    touchActivity();
+    renderNav(currentPage);
+  }
+
+  // 暴露给外部手动调用（报价页解密后动态加载时使用）
+  window.CommonNav = {
+    init: function (opts) {
+      opts = opts || {};
+      window.navConfig = {
+        currentPage: opts.currentPage || window.navConfig?.currentPage || '',
+        requireLogin: opts.requireLogin !== false
+      };
+      init();
+    },
+    logout: logout,
+    changePassword: changePassword,
+    isLoggedIn: isLoggedIn,
+    addExtra: function (html) {
+      var extra = document.getElementById('cnExtra');
+      if (extra) {
+        extra.insertAdjacentHTML('beforeend', html);
+      }
+    },
+    getNavEl: function () {
+      return document.getElementById('commonTopbar');
+    }
+  };
+
+  // 自动初始化（如果页面已设置 navConfig）
+  // 关键：同步立即执行 init()，而非等 DOMContentLoaded。
+  // 所有页面均在 <body> 开头同步引入本脚本，执行时浏览器尚未首次渲染，
+  // 导航栏元素和 body{padding-top:52px} 会在首次渲染前就位，
+  // 页面从第一帧就是最终布局，彻底消除导航栏导致的闪烁。
+  if (window.navConfig) {
+    init();
+  }
+})();
+
+</script>
+
+
+<div class="login-main">
+<div class="login-container">
+  <div class="login-header">
+    <div class="login-logo">锦</div>
+    <div class="login-title">锦刻激光</div>
+    <div class="login-subtitle">智能报价与管理系统</div>
+  </div>
+  
+  <div class="login-body">
+    <!-- 登录表单 -->
+    <div id="loginForm">
+      <div class="form-group">
+        <input type="text" class="form-input" id="username" placeholder="请输入用户名" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-input" id="password" placeholder="请输入密码" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="loginBtn" type="button">登 录</button>
+      <div class="error-msg" id="errorMsg">用户名或密码错误</div>
+    </div>
+    
+    <!-- 系统选择 -->
+    <div class="system-select" id="systemSelect">
+      <div class="system-title" id="systemTitle">选择要进入的系统</div>
+      <div class="user-info" id="userInfo" style="display:none;text-align:center;margin-bottom:16px;padding:10px;background:#f0f7ff;border-radius:8px;">
+        <span style="font-size:13px;color:#374151;">当前已登录：</span>
+        <span style="font-size:13px;font-weight:700;color:#12314b;" id="currentUserName"></span>
+      </div>
+      <div class="system-grid">
+        <a class="system-card" id="sysQuote" href="javascript:void(0)" onclick="goToSystem('quote')">
+          <div class="system-icon quote">📋</div>
+          <div class="system-info">
+            <div class="system-name">报价单系统</div>
+            <div class="system-desc">激光打标机实时报价与配置</div>
+          </div>
+          <div class="system-arrow">→</div>
+        </a>
+        <a class="system-card" id="sysContract" href="javascript:void(0)" onclick="goToSystem('contract')">
+          <div class="system-icon contract">📄</div>
+          <div class="system-info">
+            <div class="system-name">合同管理</div>
+            <div class="system-desc">交易合同与形式合同生成</div>
+          </div>
+          <div class="system-arrow">→</div>
+        </a>
+        <a class="system-card" id="sysWarehouse" href="javascript:void(0)" onclick="goToSystem('warehouse')">
+          <div class="system-icon inventory">📦</div>
+          <div class="system-info">
+            <div class="system-name">仓储管理</div>
+            <div class="system-desc">配件库存管理与同步</div>
+          </div>
+          <div class="system-arrow">→</div>
+        </a>
+        <a class="system-card" id="sysSamples" href="javascript:void(0)" onclick="goToSystem('samples')" style="display:none"><div class="system-icon">🧪</div><div class="system-info"><div class="system-name">打样工作台</div><div class="system-desc">查看样品需求、联系方式与处理进度</div></div><div class="system-arrow">→</div></a>
+        <a class="system-card" id="sysAdmin" href="javascript:void(0)" onclick="goToSystem('admin')" style="display:none;">
+          <div class="system-icon admin">👥</div>
+          <div class="system-info">
+            <div class="system-name">账号管理</div>
+            <div class="system-desc">用户与权限管理</div>
+          </div>
+          <div class="system-arrow">→</div>
+        </a>
+      </div>
+      <div class="logout-link">
+        <a onclick="doLogout()">切换账号</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========================================
+// Supabase 工具模块（Auth + REST）
+// 封装所有数据库和认证操作，前端只调这里的函数
+// ========================================
+var SupabaseDB = (function () {
+  var BASE_URL = 'https://xnyjrddfntcbrpxhnuzz.supabase.co/rest/v1';
+  var AUTH_URL = 'https://xnyjrddfntcbrpxhnuzz.supabase.co/auth/v1';
+  var ANON_KEY = 'sb_publishable_juV2Bs_XYPW7puOJBZ8a0g_noGJ63nB';
+  var STORAGE_KEY = 'supabase_auth_session';
+  var sessionGeneration = 0;
+
+  // ========== 会话管理 ==========
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} // 升级后重新登录
+  function getSession(allowExpired) {
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var session = JSON.parse(raw);
+      // 检查 access token 是否过期
+      if (!session.access_token || !Number.isFinite(session.expires_at) || (!allowExpired && Date.now() / 1000 >= session.expires_at)) {
+        return null; // 需要刷新
+      }
+      return session;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveSession(session) {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    } catch (e) {}
+  }
+
+  function clearSession() {
+    sessionGeneration++;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_KEY);
+      ['jk_pg_key', 'jk_token', 'jk_username', 'jk_user_id', 'jk_user_name', 'jk_user_role', 'jk_permissions', 'jk_user_info', 'jk_password', 'jk_config', 'jk_last_activity', 'jk_profile_cache'].forEach(function (key) { sessionStorage.removeItem(key); });
+    } catch (e) {}
+  }
+
+  function getAccessToken() {
+    var session = getSession();
+    return session ? session.access_token : null;
+  }
+
+  // ========== 请求头 ==========
+  function headers() {
+    var h = {
+      'apikey': ANON_KEY,
+      'Content-Type': 'application/json'
+    };
+    var token = getAccessToken();
+    if (token) {
+      h['Authorization'] = 'Bearer ' + token;
+    } else {
+      h['Authorization'] = 'Bearer ' + ANON_KEY;
+    }
+    return h;
+  }
+
+  function authHeaders() {
+    return {
+      'apikey': ANON_KEY,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  // ========== Auth API ==========
+
+  // 必须收到本次密码验证的有效会话，不能回退到浏览器里的旧账号。
+  function requestPasswordSession(username, password) {
+    if (typeof username !== 'string' || !username.trim() || typeof password !== 'string' || !password.trim()) {
+      return Promise.reject(new Error('请输入用户名和密码'));
+    }
+    var email = username.trim().toLowerCase() + '@jklaser.com';
+    return fetch(AUTH_URL + '/token?grant_type=password', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email: email, password: password })
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().then(function (e) {
+          var msg = e.msg || e.error_description || e.error || '登录失败';
+          // 如果是邮箱未确认，尝试自动确认（我们的迁移脚本已经确认了）
+          throw new Error(msg);
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    }).then(function (session) {
+      if (!session || typeof session.access_token !== 'string' || !session.access_token ||
+          !session.user || !session.user.id || typeof session.user.email !== 'string' ||
+          session.user.email.toLowerCase() !== email || !Number.isFinite(session.expires_in) || session.expires_in <= 0) {
+        throw new Error('登录验证未返回有效会话，请重新登录');
+      }
+      session.expires_at = Math.floor(Date.now() / 1000) + session.expires_in;
+      return session;
+    });
+  }
+
+  function authLogin(username, password) {
+    clearSession();
+    var generation = sessionGeneration;
+    return requestPasswordSession(username, password).then(function (session) {
+      if (generation !== sessionGeneration) throw new Error('本次登录已取消');
+      saveSession(session);
+      if (!getAccessToken()) throw new Error('无法保存登录会话，请检查浏览器设置');
+      return session;
+    });
+  }
+
+  // 刷新会话
+  function authRefreshSession() {
+    var session = getSession(true);
+    var generation = sessionGeneration;
+    if (!session || !session.refresh_token) {
+      return Promise.reject(new Error('没有刷新令牌'));
+    }
+    return fetch(AUTH_URL + '/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    }).then(function (res) {
+      if (!res.ok) {
+        clearSession();
+        return res.json().then(function (e) {
+          throw new Error(e.msg || '刷新会话失败');
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    }).then(function (newSession) {
+      if (generation !== sessionGeneration) throw new Error('登录已失效，请重新登录');
+      if (newSession.access_token) {
+        newSession.expires_at = Math.floor(Date.now() / 1000) + (newSession.expires_in || 3600);
+        saveSession(newSession);
+      }
+      return newSession;
+    });
+  }
+
+  // 登出
+  function authLogout() {
+    var token = getAccessToken();
+    clearSession();
+    if (token) {
+      return fetch(AUTH_URL + '/logout', {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      }).catch(function () {}); // 忽略登出错误
+    }
+    return Promise.resolve();
+  }
+
+  // 获取当前用户信息（从 Auth）
+  function authGetUser() {
+    var token = getAccessToken();
+    if (!token) return Promise.reject(new Error('未登录'));
+    return fetch(AUTH_URL + '/user', {
+      method: 'GET',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + token
+      }
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().then(function (e) {
+          throw new Error(e.msg || '获取用户信息失败');
+        });
+      }
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 获取当前用户的 profile（包含角色、权限等）
+  function getCurrentProfile() {
+    var currentSession = getSession();
+    var token = getAccessToken();
+    if (!token) return Promise.reject(new Error('未登录'));
+    // 先用 Auth 接口拿到当前用户 id，再按 id 精确查询 profile，避免取到表内第一条记录
+    return authGetUser().then(function (authUser) {
+      var userId = authUser && authUser.id;
+      if (!userId) throw new Error('未获取到用户ID');
+      return select('profiles', 'select=*&id=eq.' + userId).then(function (profiles) {
+        if (profiles && profiles.length > 0) return profiles[0];
+        throw new Error('profile 不存在');
+      });
+    }).catch(function () {
+      // 查表失败（RLS 限制）时，回退到 RPC 函数
+      return rpc('get_current_profile', {});
+    }).then(function (profile) {
+      var current = getSession();
+      if (!currentSession || !currentSession.user || !current || current.access_token !== currentSession.access_token ||
+          !profile || profile.id !== currentSession.user.id) throw new Error('登录身份已变化，请重新登录');
+      // 仅缓存显示资料，不缓存页面密钥，也不以此决定解密权限。
+      var display = {};
+      ['id','username','full_name','role','permissions','phone','shop_name','shop_company','shop_address',
+       'operator_id','parent_operator_id','parent_operator_name','last_login_at','last_login_ip'].forEach(function (field) {
+        display[field] = profile[field];
+      });
+      try {
+        sessionStorage.setItem('jk_profile_cache', JSON.stringify({
+          userId: current.user.id, expiresAt: current.expires_at, profile: display
+        }));
+      } catch (e) {}
+      return profile;
+    });
+  }
+
+  // 页面展示可复用当前会话的资料；取密钥 RPC 仍逐次在服务端核验最新权限。
+  function getPageProfile() {
+    var session = getSession();
+    if (!session || !session.user) return Promise.reject(new Error('未登录'));
+    try {
+      var cached = JSON.parse(sessionStorage.getItem('jk_profile_cache') || 'null');
+      if (cached && cached.userId === session.user.id && cached.expiresAt === session.expires_at &&
+          cached.profile && cached.profile.id === session.user.id) return Promise.resolve(cached.profile);
+    } catch (e) {}
+    return getCurrentProfile();
+  }
+
+  // 检查是否已登录
+  function isLoggedIn() {
+    return !!getAccessToken();
+  }
+
+  // ========== REST API ==========
+
+  // 调用 RPC 函数
+  function rpc(name, params) {
+    return fetch(BASE_URL + '/rpc/' + name, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(params || {})
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '请求失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 读取表数据
+  function select(table, query) {
+    var url = BASE_URL + '/' + table;
+    if (query) url += '?' + query;
+    return fetch(url, {
+      method: 'GET',
+      headers: headers()
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '请求失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 插入数据
+  function insert(table, data) {
+    return fetch(BASE_URL + '/' + table, {
+      method: 'POST',
+      headers: Object.assign(headers(), {Prefer: 'return=representation'}),
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '插入失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 更新数据
+  function update(table, id, data) {
+    return fetch(BASE_URL + '/' + table + '?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: headers(),
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '更新失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // 删除数据
+  function remove(table, id) {
+    return fetch(BASE_URL + '/' + table + '?id=eq.' + encodeURIComponent(id), {
+      method: 'DELETE',
+      headers: headers()
+    }).then(function (res) {
+      if (!res.ok) return res.json().then(function (e) { throw new Error(e.message || '删除失败'); });
+      return res.status === 204 ? null : res.json();
+    });
+  }
+
+  // ========== 业务函数（兼容旧接口） ==========
+
+  return {
+    connection: {url: BASE_URL.replace('/rest/v1', ''), publicKey: ANON_KEY},
+    getPageKey: function (page, version) {
+      if (!['contract', 'warehouse', 'admin'].includes(page) || !/^[a-f0-9-]{36}$/.test(version)) {
+        return Promise.reject(new Error('页面参数无效'));
+      }
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return rpc('get_page_key', { p_page: page, p_version: version }).then(function (key) {
+        if (typeof key !== 'string' || !/^[A-Za-z0-9+/]{43}=$/.test(key)) throw new Error('页面密钥不可用');
+        return key;
+      });
+    },
+    // 服务端必须核验当前用户的报价权限，禁止公开读取密钥。
+    getQuoteKey: function () {
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return rpc('get_quote_key', {}).then(function (key) {
+        if (typeof key !== 'string' || !key.trim()) throw new Error('报价密钥尚未在服务端配置');
+        return key;
+      }).catch(function () { throw new Error('无法获取报价密钥：请确认报价权限及服务端密钥配置'); });
+    },
+    // Auth 相关
+    authLogin: authLogin,
+    authRefreshSession: authRefreshSession,
+    authLogout: authLogout,
+    authGetUser: authGetUser,
+    getCurrentProfile: getCurrentProfile,
+    getPageProfile: getPageProfile,
+    isLoggedIn: isLoggedIn,
+    getSession: getSession,
+    clearSession: clearSession,
+
+    // 登录失败次数限制相关
+    checkAccountLock: function (username) {
+      return rpc('check_account_lock', { p_username: username });
+    },
+    recordLoginFailure: function (username, ip) {
+      return rpc('record_login_failure', { p_username: username, p_ip_address: ip || null });
+    },
+    recordLoginSuccess: function (username, ip) {
+      return rpc('record_login_success', { p_username: username, p_ip_address: ip || null });
+    },
+    unlockAccount: function (username) {
+      return rpc('unlock_account', { p_username: username });
+    },
+
+    // 旧的登录接口（保留兼容，内部使用 Auth）
+    login: function (username, password) {
+      return authLogin(username, password).then(function (session) {
+        return getCurrentProfile().then(function (profile) {
+          // 转换为旧格式（返回单个对象，不是数组）
+          return {
+            id: profile.id,
+            username: profile.username,
+            role: profile.role,
+            permissions: profile.permissions,
+            full_name: profile.full_name,
+            name: profile.full_name || profile.username,
+            phone: profile.phone,
+            shop_name: profile.shop_name,
+            shop_company: profile.shop_company,
+            shop_address: profile.shop_address,
+            operator_id: profile.operator_id,
+            parent_operator_id: profile.parent_operator_id,
+            parent_operator_name: profile.parent_operator_name,
+            last_login_time: profile.last_login_at,
+            last_login_ip: profile.last_login_ip
+          };
+        });
+      });
+    },
+
+    // 修改密码（使用 Auth）
+    updatePassword: function (username, oldPassword, newPassword) {
+      // 先验证旧密码
+      var current = getSession();
+      var generation = sessionGeneration;
+      if (!current || !current.user) return Promise.reject(new Error('未登录'));
+      return requestPasswordSession(username, oldPassword).then(function (verified) {
+        if (generation !== sessionGeneration || verified.user.id !== current.user.id) throw new Error('登录信息已变化');
+        var token = verified.access_token;
+        return fetch(AUTH_URL + '/user', {
+          method: 'PUT',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password: newPassword })
+        }).then(function (res) {
+          if (!res.ok) return res.json().then(function (e) { throw new Error(e.msg || '修改密码失败'); });
+          return res.status === 204 ? null : res.json();
+        }).then(function (result) {
+          if (generation !== sessionGeneration) throw new Error('登录已失效，请重新登录');
+          saveSession(verified);
+          return result;
+        });
+      });
+    },
+
+    // 获取所有用户（从 profiles 表）
+    getUsers: function () {
+      return select('profiles', 'select=id,username,full_name,role,permissions,sample_email,operator_id,parent_operator_id,parent_operator_name,phone,created_at,updated_at&order=created_at.asc');
+    },
+
+    // 创建用户（管理员操作，需要先创建 Auth 用户，再创建 profile；鉴权由当前登录会话 + 后端 RLS/RPC 保证）
+    createUser: function (username, password, role, permissions, parentOperatorId, parentOperatorName, sampleEmail) {
+      if (!getAccessToken()) return Promise.reject(new Error('请先登录'));
+      return fetch(AUTH_URL.replace('/auth/v1','/functions/v1/admin-users'), {
+        method:'POST', headers:headers(), body:JSON.stringify({username:username,password:password,role:role,permissions:permissions,parentOperatorId:parentOperatorId,parentOperatorName:parentOperatorName,sampleEmail:sampleEmail||''})
+      }).catch(function(){throw new Error('无法连接创建账号接口，请确认已部署 admin-users 并检查网络连接');}).then(async function(res){var data;try{data=await res.json();}catch(e){throw new Error('创建账号接口返回异常，请检查 admin-users 部署');}if(!res.ok){if(res.status===404)throw new Error('创建账号接口尚未部署，请先部署 admin-users');throw new Error(data.error||data.message||'创建账号失败');}return data;});
+    },
+
+    // 更新用户
+    updateUser: function (userId, username, role, permissions, parentOperatorId, parentOperatorName, sampleEmail) {
+      return update('profiles', userId, {
+        username: username,
+        role: role,
+        permissions: permissions,
+        sample_email: sampleEmail||'',
+        parent_operator_id: parentOperatorId || null,
+        parent_operator_name: parentOperatorName || null
+      });
+    },
+
+    // 删除用户
+    deleteUser: function (userId) {
+      // 删除 auth.users 会级联删除 profiles（因为有外键 ON DELETE CASCADE）
+      // 但前端无法直接删除 auth.users，需要用 RPC 函数（后端鉴权）
+      return rpc('delete_auth_user', { p_user_id: userId });
+    },
+
+    // 重置用户密码
+    resetUserPassword: function (userId, newPassword) {
+      return rpc('reset_user_password', { p_user_id: userId, p_new_password: newPassword });
+    },
+
+    // 库存相关
+    getInventory: function () {
+      return select('inventory', 'select=*&order=item_key.asc');
+    },
+
+    updateInventoryItem: function (itemKey, quantity) {
+      var items={};items[itemKey]=quantity;return rpc('set_inventory_batch', {p_items:items});
+    },
+
+    batchUpdateInventory: function (items) {
+      return rpc('set_inventory_batch', { p_items: items });
+    },
+
+    // 库存匹配相关
+    getAllMappings: function () {
+      return select('user_workspace', 'select=data&kind=eq.mapping').then(function(rows) { return rows[0] ? rows[0].data : []; });
+    },
+
+    saveMappings: function (mappings) {
+      return rpc('save_workspace', { p_kind: 'mapping', p_data: mappings });
+    },
+
+    deleteMapping: function (quoteKey) {
+      return select('user_workspace', 'select=data&kind=eq.mapping').then(function(rows) { return rpc('save_workspace', { p_kind: 'mapping', p_data: (rows[0] ? rows[0].data : []).filter(function(m) { return m.quote_key !== quoteKey; }) }); });
+    },
+
+    // 客户管理相关
+    getCustomers: function () {
+      return select('customers', 'select=*&user_id=eq.' + encodeURIComponent(getSession().user.id) + '&order=created_at.desc&limit=500');
+    },
+
+    saveCustomer: function (customer) {
+      var session = getSession();
+      var userId = session ? session.user.id : null;
+      var data = {
+        user_id: userId,
+        name: customer.name,
+        head: customer.head || '',
+        phone: customer.phone || '',
+        addr: customer.addr || '',
+        credit: customer.credit || '',
+        mail: customer.mail || '',
+        tel: customer.tel || '',
+        price_term: customer.priceTerm || ''
+      };
+      return insert('customers', data);
+    },
+
+    updateCustomer: function (id, customer) {
+      var data = {
+        name: customer.name,
+        head: customer.head || '',
+        phone: customer.phone || '',
+        addr: customer.addr || '',
+        credit: customer.credit || '',
+        mail: customer.mail || '',
+        tel: customer.tel || '',
+        price_term: customer.priceTerm || '',
+        updated_at: new Date().toISOString()
+      };
+      return update('customers', id, data);
+    },
+
+    deleteCustomer: function (id) {
+      return remove('customers', id);
+    },
+
+    // 报价历史相关
+    getQuotes: function () {
+      return select('quotes', 'select=*&user_id=eq.' + encodeURIComponent(getSession().user.id) + '&order=created_at.desc&limit=200');
+    },
+
+    saveQuote: function (quote) {
+      var session = getSession();
+      var userId = session ? session.user.id : null;
+      var data = {
+        user_id: userId,
+        customer_name: quote.customerName || '',
+        quote_data: quote.quoteData || {},
+        total_price: quote.totalPrice || 0
+      };
+      return insert('quotes', data);
+    },
+
+    deleteQuote: function (id) {
+      return remove('quotes', id);
+    },
+
+    updateQuote: function (id, data) {
+      return update('quotes', id, data);
+    },
+
+    // 原始 API（供高级使用）
+    _rpc: rpc,
+    _select: select,
+    _insert: insert,
+    _update: update,
+    _delete: remove
+  };
+})();
+
+</script>
+<script>
+// 统一密码登录入口：访问本页必须重新验证，不静默沿用旧账号。
+var loginPending = false;
+var loginVerified = false;
+var loginAttempt = 0;
+
+function setLoginBusy(busy) {
+  loginPending = busy;
+  ['username', 'password', 'loginBtn'].forEach(function (id) {
+    document.getElementById(id).disabled = busy;
+  });
+  document.getElementById('loginBtn').textContent = busy ? '正在验证…' : '登 录';
+}
+
+function resetLoginForm() {
+  loginAttempt++;
+  loginVerified = false;
+  SupabaseDB.clearSession();
+  setLoginBusy(false);
+  document.getElementById('password').value = '';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('systemSelect').classList.remove('show');
+  document.getElementById('userInfo').style.display = 'none';
+  document.getElementById('currentUserName').textContent = '';
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+function showSystemSelect() {
+  if (!loginVerified || !SupabaseDB.isLoggedIn()) return;
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('systemSelect').classList.add('show');
+  const username = sessionStorage.getItem('jk_username');
+  const role = sessionStorage.getItem('jk_user_role') || '';
+  const permissions = JSON.parse(sessionStorage.getItem('jk_permissions') || '[]');
+  const hasAllPerm = role === 'admin' || permissions.includes('*') || permissions.includes('admin');
+  document.getElementById('userInfo').style.display = 'block';
+  document.getElementById('currentUserName').textContent = sessionStorage.getItem('jk_user_name') || username;
+  document.getElementById('sysQuote').style.display = (hasAllPerm || permissions.includes('quote')) ? 'flex' : 'none';
+  document.getElementById('sysContract').style.display = (hasAllPerm || permissions.includes('contract')) ? 'flex' : 'none';
+  document.getElementById('sysWarehouse').style.display = (hasAllPerm || permissions.includes('warehouse')) ? 'flex' : 'none';
+  if(document.getElementById('sysSamples'))document.getElementById('sysSamples').style.display=(hasAllPerm||permissions.includes('sample_manage'))?'flex':'none';
+  document.getElementById('sysAdmin').style.display = hasAllPerm ? 'flex' : 'none';
+}
+
+async function doLogin() {
+  if (loginPending) return;
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errorMsg = document.getElementById('errorMsg');
+  loginVerified = false;
+  SupabaseDB.clearSession();
+  document.getElementById('systemSelect').classList.remove('show');
+  if (!username || !password.trim()) {
+    errorMsg.textContent = '请输入用户名和密码';
+    errorMsg.style.display = 'block';
+    return;
+  }
+  const attempt = ++loginAttempt;
+  setLoginBusy(true);
+  errorMsg.textContent = '正在验证…';
+  errorMsg.style.display = 'block';
+  let passwordAttempted = false;
+  let authenticated = false;
+  try {
+    const lockInfo = await SupabaseDB.checkAccountLock(username);
+    if (attempt !== loginAttempt) return;
+    if (lockInfo.locked) throw new Error('账户已被锁定，请稍后再试');
+    passwordAttempted = true;
+    const session = await SupabaseDB.authLogin(username, password);
+    if (attempt !== loginAttempt) return;
+    authenticated = true;
+    const profile = await SupabaseDB.getCurrentProfile();
+    if (attempt !== loginAttempt) return;
+    const current = SupabaseDB.getSession();
+    if (!session || !session.user || !current || current.access_token !== session.access_token ||
+        !profile || profile.id !== session.user.id ||
+        String(profile.username || '').toLowerCase() !== username.toLowerCase()) {
+      throw new Error('登录身份校验失败，请重新登录');
+    }
+    const role = profile.role || '';
+    const permissions = Array.isArray(profile.permissions) ? profile.permissions : [];
+    sessionStorage.setItem('jk_username', profile.username);
+    sessionStorage.setItem('jk_user_id', profile.id);
+    sessionStorage.setItem('jk_user_role', role);
+    sessionStorage.setItem('jk_user_name', profile.full_name || profile.username);
+    sessionStorage.setItem('jk_permissions', JSON.stringify(permissions));
+    sessionStorage.setItem('jk_user_info', JSON.stringify({
+      username: profile.username, name: profile.full_name || profile.username,
+      role: role, phone: profile.phone || '', permissions: permissions,
+      parentOperatorId: profile.parent_operator_id || '',
+      parentOperatorName: profile.parent_operator_name || '',
+      currentLoginTime: new Date().toLocaleString('zh-CN'), currentLoginIP: '未提供', lastLoginTime: profile.last_login_at || '首次登录', lastLoginIP: profile.last_login_ip || '未记录'
+    }));
+    sessionStorage.setItem('jk_last_activity', String(Date.now()));
+    loginVerified = true;
+    errorMsg.style.display = 'none';
+    showSystemSelect();
+    SupabaseDB._rpc('record_session_login', {}).then(function(info) { if (attempt !== loginAttempt || !SupabaseDB.getSession() || SupabaseDB.getSession().user.id !== profile.id) return; ['currentLoginTime','lastLoginTime'].forEach(function(k) { info[k] = info[k] ? new Date(info[k]).toLocaleString('zh-CN') : '首次登录'; }); sessionStorage.setItem('jk_user_info', JSON.stringify(Object.assign({}, JSON.parse(sessionStorage.getItem('jk_user_info') || '{}'), info))); }).catch(function () {});
+  } catch (err) {
+    if (attempt !== loginAttempt) return;
+    loginVerified = false;
+    SupabaseDB.clearSession();
+    errorMsg.textContent = err.message || '登录失败，请重试';
+    errorMsg.style.display = 'block';
+    if (passwordAttempted && !authenticated) {
+      SupabaseDB.recordLoginFailure(username, 'local').catch(function () {});
+    }
+  } finally {
+    if (attempt === loginAttempt) {
+      document.getElementById('password').value = '';
+      setLoginBusy(false);
+    }
+  }
+}
+
+function goToSystem(system) {
+  const last = Number(sessionStorage.getItem('jk_last_activity'));
+  if (!loginVerified || !SupabaseDB.isLoggedIn() || !last || last > Date.now() || Date.now() - last >= 20 * 60 * 1000) {
+    resetLoginForm();
+    return;
+  }
+  const pages = {quote:'quote.html',contract:'contract.html',warehouse:'warehouse.html',admin:'admin.html',samples:'samples.html'};
+  if (Object.prototype.hasOwnProperty.call(pages, system)) window.location.href = pages[system];
+}
+
+function doLogout() {
+  SupabaseDB.authLogout().catch(function () {});
+  resetLoginForm();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  resetLoginForm();
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('password').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); doLogin(); }
+  });
+});
+window.addEventListener('pageshow', function (event) {
+  if (event.persisted) resetLoginForm();
+});
+
+</script>
+</div>
+</body>
+</html>
